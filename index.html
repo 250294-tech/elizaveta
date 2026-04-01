@@ -68,7 +68,7 @@
 </header>
 
 <div class="card">
-    <center><strong>&#127942; ТОП ЛИДЕРОВ</strong></center>
+    <center><strong>🏆 ТОП ЛИДЕРОВ</strong></center>
     <div id="leadersList" class="leaders"></div>
 </div>
 
@@ -99,6 +99,10 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
+    // Делаем объекты доступными из консоли для тестов
+    window.db = db;
+    window.auth = auth;
+
     // Вход/Выход
     document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
 
@@ -120,24 +124,32 @@
         }
     });
 
-    // Функция лайка (теперь она точно сработает)
+    // Функция лайка
     window.pressLike = async (id) => {
         if (!auth.currentUser) return alert("Нужно войти в аккаунт!");
-        await updateDoc(doc(db, "requests", id), { likes: increment(1) });
+        try {
+            await updateDoc(doc(db, "requests", id), { likes: increment(1) });
+        } catch (e) {
+            console.error("Ошибка лайка:", e.message);
+        }
     };
 
     // Отправка поста
     document.getElementById('sendBtn').onclick = async () => {
         const text = document.getElementById('msg').value;
-        if (!text) return;
-        await addDoc(collection(db, "requests"), {
-            name: auth.currentUser.displayName,
-            photo: auth.currentUser.photoURL,
-            text: text,
-            likes: 0,
-            timestamp: serverTimestamp()
-        });
-        document.getElementById('msg').value = "";
+        if (!text || !auth.currentUser) return;
+        try {
+            await addDoc(collection(db, "requests"), {
+                name: auth.currentUser.displayName,
+                photo: auth.currentUser.photoURL,
+                text: text,
+                likes: 0,
+                timestamp: serverTimestamp()
+            });
+            document.getElementById('msg').value = "";
+        } catch (e) {
+            alert("Ошибка отправки! Проверьте правила доступа в Firebase.");
+        }
     };
 
     // Обновление топа
@@ -145,7 +157,8 @@
         const list = document.getElementById('leadersList');
         list.innerHTML = "";
         snap.forEach(d => {
-            list.innerHTML += `<div><b>${d.data().name.split(' ')[0]}</b><br>❤️ ${d.data().likes}</div>`;
+            const data = d.data();
+            list.innerHTML += `<div><b>${(data.name || "Аноним").split(' ')[0]}</b><br>❤️ ${data.likes || 0}</div>`;
         });
     });
 
@@ -158,16 +171,14 @@
             feed.innerHTML += `
                 <div class="post">
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-                        <img src="${data.photo}" style="width:25px; border-radius:50%;">
-                        <b>${data.name}</b>
+                        <img src="${data.photo || 'https://via.placeholder.com/25'}" style="width:25px; border-radius:50%;">
+                        <b>${data.name || "Аноним"}</b>
                     </div>
                     <div>${data.text}</div>
                     <button class="like-btn" onclick="pressLike('${d.id}')">👍 ${data.likes || 0}</button>
                 </div>`;
         });
     });
-
-    window.auth = auth;
 </script>
 </body>
 </html>
