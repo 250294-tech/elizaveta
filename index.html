@@ -145,7 +145,7 @@
         const list = document.getElementById('leadersList');
         list.innerHTML = "";
         snap.forEach(d => {
-            list.innerHTML += <div><b>${d.data().name.split(' ')[0]}</b><br>❤️ ${d.data().likes}</div>;
+            list.innerHTML += `<div><b>${d.data().name.split(' ')[0]}</b><br>❤️ ${d.data().likes}</div>`;
         });
     });
 
