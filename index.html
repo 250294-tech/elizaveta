@@ -2,112 +2,87 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>BaaS - Облачная регистрация с фото</title>
+    <title>BaaS - Облачная регистрация</title>
     <style>
-        /* Твой оригинальный дизайн */
+        /* Твой оригинальный фиолетовый дизайн */
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
-            color: #4a148c;
+            display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; color: #4a148c;
         }
 
         .container {
-            width: 100%;
-            max-width: 500px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.15);
-            margin-bottom: 20px;
-            box-sizing: border-box;
-            backdrop-filter: blur(5px);
+            width: 100%; max-width: 500px; background: rgba(255, 255, 255, 0.9);
+            padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(155, 89, 182, 0.15);
+            margin-bottom: 20px; box-sizing: border-box; backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .leaders-panel { background: #fff; border: 2px solid #ce93d8; text-align: center; }
         .leader-item { display: inline-block; margin: 0 12px; font-size: 14px; padding: 10px; background: #fdf5ff; border-radius: 12px; border: 1px solid #f3e5f5; }
-        .leader-rank { color: #ab47bc; font-weight: bold; font-size: 20px; }
-
+        
         input {
-            width: 100%;
-            padding: 14px;
-            margin: 10px 0;
-            border: 2px solid #f3e5f5;
-            border-radius: 12px;
-            box-sizing: border-box;
-            outline: none;
-            font-size: 15px;
+            width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #f3e5f5;
+            border-radius: 12px; box-sizing: border-box; outline: none; font-size: 15px;
         }
 
-        /* Кнопки */
-        #mainBtn, #loginBtn {
+        button {
             background: linear-gradient(45deg, #ba68c8, #9c27b0);
             color: white; border: none; padding: 15px; border-radius: 12px;
             width: 100%; font-weight: 600; cursor: pointer; transition: 0.3s;
-        }
-        #logoutBtn {
-            background: #ff5252; color: white; border: none; padding: 5px 10px;
-            border-radius: 8px; cursor: pointer; font-size: 12px; margin-top: 5px;
         }
 
         .post {
             background: white; border-radius: 15px; padding: 18px; margin-top: 15px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.03); width: 100%; max-width: 500px;
-            border-left: 5px solid #e1bee7; box-sizing: border-box;
+            border-left: 5px solid #e1bee7; position: relative;
         }
+        
         .post-img { width: 100%; border-radius: 10px; margin-top: 10px; }
-        .user-info { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; justify-content: center; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ba68c8; }
-        .like-btn { cursor: pointer; border: 1px solid #f3e5f5; background: #fffafa; padding: 6px 15px; border-radius: 20px; color: #8e24aa; font-weight: bold; }
         .time { font-size: 11px; color: #ab47bc; float: right; }
+        .like-btn { cursor: pointer; border: 1px solid #f3e5f5; background: #fffafa; padding: 6px 15px; border-radius: 20px; color: #8e24aa; margin-top: 10px; }
+        
+        /* Стили профиля */
+        .profile-card { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #ba68c8; }
     </style>
 </head>
 <body>
 
 <div class="container leaders-panel">
     <h4>🏆 Зал славы (Топ-3)</h4>
-    <div id="leadersList">Загрузка чемпионов...</div>
+    <div id="leadersList">Загрузка...</div>
 </div>
 
-<div class="container" id="authBlock">
+<div class="container" id="authSection">
     <button id="loginBtn">Войти через Google</button>
-    <div id="userProfile" style="display: none;">
-        <div class="user-info">
-            <img id="userAvatar" src="" class="avatar">
-            <b id="userDisplay"></b>
+    <div id="userInfo" style="display: none;">
+        <div class="profile-card">
+            <img id="userPhoto" class="avatar" src="">
+            <span id="userName" style="font-weight: bold;"></span>
         </div>
-        <center><button id="logoutBtn">Выйти из системы</button></center>
+        <button id="logoutBtn" style="background: #ff5252; padding: 8px; font-size: 12px;">Выйти</button>
     </div>
 </div>
 
-<div class="container" id="publishForm" style="display: none;">
-    <h3>Создать запись</h3>
+<div class="container" id="messageForm" style="display: none;">
+    <h3>Панель управления</h3>
     <input type="text" id="name" placeholder="Имя" readonly>
     <input type="email" id="email" placeholder="Email" readonly>
-    <input type="text" id="postContent" placeholder="О чем вы думаете?">
-    <label style="font-size: 12px; color: #7b1fa2;">Прикрепить фото:</label>
+    <input type="text" id="content" placeholder="Ваше сообщение...">
+    <label style="font-size: 12px; margin-top: 10px; display: block;">Прикрепить фото:</label>
     <input type="file" id="imageInput" accept="image/*">
-    <button id="mainBtn">Опубликовать в облако</button>
-</div>
-
-<div class="container" style="border-left: 5px solid #ab47bc; background: #f8f0fb;">
-    <input type="text" id="searchInput" placeholder="🔍 Поиск по точному имени...">
+    <button id="mainBtn" style="margin-top: 15px;">Опубликовать в облако</button>
 </div>
 
 <div id="feed" style="width: 100%; max-width: 500px;"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, updateDoc, doc, increment, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
-    // Твои конфиги из кода
     const firebaseConfig = {
         apiKey: "AIzaSyBh4ixnhUV8Gaz3_vnyf0sQRhk4wxRKljE",
         authDomain: "elizaveta-b07f8.firebaseapp.com",
@@ -122,115 +97,90 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // --- ЛОГИКА АВТОРИЗАЦИИ ---
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const userProfile = document.getElementById('userProfile');
-    const publishForm = document.getElementById('publishForm');
-
-    loginBtn.onclick = () => signInWithPopup(auth, provider);
-    logoutBtn.onclick = () => signOut(auth);
-
+    // Авторизация
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            loginBtn.style.display = 'none';
-            userProfile.style.display = 'block';
-            publishForm.style.display = 'block';
-            document.getElementById('userAvatar').src = user.photoURL;
-            document.getElementById('userDisplay').innerText = user.displayName;
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'block';
+            document.getElementById('messageForm').style.display = 'block';
+            document.getElementById('userName').innerText = user.displayName;
+            document.getElementById('userPhoto').src = user.photoURL;
             document.getElementById('name').value = user.displayName;
             document.getElementById('email').value = user.email;
         } else {
-            loginBtn.style.display = 'block';
-            userProfile.style.display = 'none';
-            publishForm.style.display = 'none';
+            document.getElementById('loginBtn').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('messageForm').style.display = 'none';
         }
     });
 
-    // --- ФУНКЦИЯ КАРТИНКИ ---
-    const toBase64 = file => new Promise((res, rej) => {
+    document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
+    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+    // Функция картинки (Base64)
+    const toBase64 = file => new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => res(reader.result);
-        reader.onerror = e => rej(e);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = e => reject(e);
     });
 
-    // --- ЛАЙКИ И ЛИДЕРЫ ---
-    window.processLike = async (id) => {
-        try { await updateDoc(doc(db, "requests", id), { likes: increment(1) }); } 
-        catch(e) { alert("Войдите, чтобы лайкать!"); }
-    };
-
-    const syncLeaders = () => {
-        const qL = query(collection(db, "requests"), orderBy("likes", "desc"), limit(3));
-        onSnapshot(qL, (snap) => {
-            const list = document.getElementById('leadersList');
-            list.innerHTML = "";
-            let r = 1;
-            snap.forEach(d => {
-                const data = d.data();
-                list.innerHTML += `<div class="leader-item"><div class="leader-rank">#${r}</div><b>${data.name}</b><br><small>❤️ ${data.likes || 0}</small></div>`;
-                r++;
-            });
-        });
-    };
-
-    // --- ЛЕНТА И ПОИСК ---
-    const renderFeed = (filter = "") => {
-        const col = collection(db, "requests");
-        const q = filter ? query(col, where("name", "==", filter)) : query(col, orderBy("timestamp", "desc"));
-        
-        onSnapshot(q, (snap) => {
-            const feed = document.getElementById('feed');
-            feed.innerHTML = "";
-            snap.forEach(d => {
-                const data = d.data();
-                const time = data.timestamp ? data.timestamp.toDate().toLocaleTimeString() : "...";
-                feed.innerHTML += `
-                    <div class="post">
-                        <span class="time">${time}</span>
-                        <b>${data.name}</b>
-                        <p style="margin:5px 0; font-size: 14px;">${data.text || ""}</p>
-                        ${data.image ? `<img src="${data.image}" class="post-img">` : ""}
-                        <div style="margin-top:10px;">
-                            <button class="like-btn" onclick="processLike('${d.id}')">👍 ${data.likes || 0}</button>
-                        </div>
-                    </div>`;
-            });
-        });
-    };
-
-    // --- ПУБЛИКАЦИЯ ---
+    // Публикация
     document.getElementById('mainBtn').onclick = async () => {
-        const text = document.getElementById('postContent').value;
+        const content = document.getElementById('content').value;
         const file = document.getElementById('imageInput').files[0];
-        
-        if(!text && !file) return alert("Добавьте текст или фото!");
+        if (!content && !file) return alert("Введите текст или выберите фото!");
 
-        let imgData = null;
-        if(file) {
-            if(file.size > 800000) return alert("Файл слишком большой!");
-            imgData = await toBase64(file);
+        let imgStr = null;
+        if (file) {
+            if (file.size > 600000) return alert("Файл слишком большой!");
+            imgStr = await toBase64(file);
         }
 
         try {
             await addDoc(collection(db, "requests"), {
                 name: auth.currentUser.displayName,
                 email: auth.currentUser.email,
-                text: text,
-                image: imgData,
+                photo: auth.currentUser.photoURL,
+                text: content,
+                image: imgStr,
                 likes: 0,
                 timestamp: serverTimestamp()
             });
-            document.getElementById('postContent').value = "";
+            document.getElementById('content').value = "";
             document.getElementById('imageInput').value = "";
-        } catch (err) { alert("Ошибка доступа!"); }
+        } catch (e) { alert("Ошибка! Проверьте Rules в Firebase."); }
     };
 
-    document.getElementById('searchInput').oninput = (e) => renderFeed(e.target.value.trim());
+    // Зал славы
+    onSnapshot(query(collection(db, "requests"), orderBy("likes", "desc"), limit(3)), (snap) => {
+        const list = document.getElementById('leadersList');
+        list.innerHTML = "";
+        let r = 1;
+        snap.forEach(d => {
+            list.innerHTML += `<div class="leader-item"><b>#${r} ${d.data().name}</b><br><small>❤️ ${d.data().likes || 0}</small></div>`;
+            r++;
+        });
+    });
 
-    renderFeed();
-    syncLeaders();
+    // Лента
+    onSnapshot(query(collection(db, "requests"), orderBy("timestamp", "desc")), (snap) => {
+        const feed = document.getElementById('feed');
+        feed.innerHTML = "";
+        snap.forEach(d => {
+            const data = d.data();
+            feed.innerHTML += `
+                <div class="post">
+                    <span class="time">${data.timestamp?.toDate().toLocaleTimeString() || ""}</span>
+                    <b>${data.name}</b>
+                    <p>${data.text || ""}</p>
+                    ${data.image ? `<img src="${data.image}" class="post-img">` : ""}
+                    <button class="like-btn" onclick="updateDoc(doc(db,'requests','${d.id}'),{likes:increment(1)})">👍 ${data.likes || 0}</button>
+                </div>`;
+        });
+    });
+
+    window.db = db; // Для лайков
 </script>
 </body>
 </html>
