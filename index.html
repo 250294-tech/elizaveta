@@ -3,86 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud App Final</title>
+    <title>Cloud App - Elizaveta</title>
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f0e6f7; margin: 0; padding-top: 70px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
-        /* Шапка с кнопкой входа в углу */
-        .header {
-            position: fixed; top: 0; width: 100%; height: 60px;
-            background: #fff; display: flex; align-items: center;
-            justify-content: space-between; padding: 0 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; box-sizing: border-box;
-        }
-
-        .auth-btn {
-            background: #9c27b0; color: white; border: none;
-            padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold;
-        }
-
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .user-info img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #9c27b0; }
+        :root { --main: #9c27b0; --bg: #f5f0f7; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-top: 70px; display: flex; flex-direction: column; align-items: center; }
+        
+        /* Шапка */
+        .navbar { position: fixed; top: 0; width: 100%; height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; box-sizing: border-box; }
+        .logo { font-weight: bold; color: var(--main); font-size: 20px; }
+        .user-box { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .user-pic { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--main); }
 
         /* Карточки */
-        .card {
-            width: 90%; max-width: 450px; background: white;
-            border-radius: 20px; padding: 20px; margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); box-sizing: border-box;
-        }
-
-        .leaders { display: flex; justify-content: space-around; text-align: center; margin-top: 10px; }
+        .card { width: 90%; max-width: 450px; background: #fff; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); box-sizing: border-box; }
         
-        input {
-            width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd;
-            border-radius: 10px; outline: none; box-sizing: border-box;
-        }
+        /* Поля ввода (Как на твоем фото) */
+        input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 12px; outline: none; box-sizing: border-box; font-size: 14px; }
+        input[type="file"] { font-size: 12px; margin-bottom: 10px; color: #666; }
+        
+        .btn-main { background: var(--main); color: #fff; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-main:hover { opacity: 0.8; }
 
-        .post {
-            background: white; width: 90%; max-width: 450px;
-            padding: 15px; border-radius: 15px; margin-bottom: 15px;
-            border-left: 5px solid #9c27b0; box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-
-        .like-btn {
-            background: #fdf5ff; border: 1px solid #9c27b0;
-            color: #9c27b0; padding: 5px 15px; border-radius: 15px;
-            cursor: pointer; font-weight: bold; margin-top: 10px;
-        }
+        /* Посты */
+        .post { background: #fff; width: 90%; max-width: 450px; padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--main); box-sizing: border-box; }
+        .post-img { width: 100%; border-radius: 10px; margin: 10px 0; display: block; }
+        .like-btn { background: #fdf5ff; border: 1px solid var(--main); color: var(--main); padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<header class="header">
-    <div style="font-weight: bold; color: #9c27b0;">MY.CLOUD</div>
+<nav class="navbar">
+    <div class="logo">ELIZAVETA.WEB</div>
     <div id="authContent">
-        <button id="loginBtn" class="auth-btn">Войти</button>
-        <div id="profile" class="user-info" style="display: none;">
-            <span id="uName" style="font-size: 14px;"></span>
-            <img id="uPhoto" src="">
+        <button id="loginBtn" style="background:var(--main); color:#fff; border:none; padding:8px 15px; border-radius:20px; cursor:pointer;">Войти</button>
+        <div id="userProfile" class="user-box" style="display: none;">
+            <span id="uName" style="font-size:14px; font-weight:bold;"></span>
+            <img id="uPhoto" class="user-pic">
         </div>
     </div>
-</header>
+</nav>
 
-<div class="card">
-    <center><strong>&#127942; ТОП ЛИДЕРОВ</strong></center>
-    <div id="leadersList" class="leaders"></div>
+<div class="card" id="formCard" style="display: none;">
+    <h3 style="margin-top:0; color:var(--main);">Создать запись</h3>
+    <input type="text" id="postText" placeholder="Что у вас нового?">
+    <label style="font-size: 12px; color: #888;">Добавить фото:</label><br>
+    <input type="file" id="postFile" accept="image/*">
+    <button id="sendBtn" class="btn-main">Опубликовать в облако</button>
+    <center><button onclick="auth.signOut()" style="background:none; border:none; color:red; margin-top:10px; cursor:pointer; font-size:12px;">Выйти</button></center>
 </div>
 
-<div class="card" id="form" style="display: none;">
-    <input type="text" id="msg" placeholder="Напишите что-нибудь...">
-    <button id="sendBtn" class="auth-btn" style="width: 100%;">Опубликовать</button>
-    <center><button onclick="auth.signOut()" style="background:none; border:none; color:red; cursor:pointer; margin-top:10px;">Выйти</button></center>
-</div>
-
-<div id="feed" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
+<div id="feed" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -99,57 +73,62 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // Вход/Выход
+    // Авторизация
     document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
 
     onAuthStateChanged(auth, (user) => {
-        const loginBtn = document.getElementById('loginBtn');
-        const profile = document.getElementById('profile');
-        const form = document.getElementById('form');
-        
         if (user) {
-            loginBtn.style.display = 'none';
-            profile.style.display = 'flex';
-            form.style.display = 'block';
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('userProfile').style.display = 'flex';
+            document.getElementById('formCard').style.display = 'block';
             document.getElementById('uName').innerText = user.displayName.split(' ')[0];
             document.getElementById('uPhoto').src = user.photoURL;
         } else {
-            loginBtn.style.display = 'block';
-            profile.style.display = 'none';
-            form.style.display = 'none';
+            document.getElementById('loginBtn').style.display = 'block';
+            document.getElementById('userProfile').style.display = 'none';
+            document.getElementById('formCard').style.display = 'none';
         }
     });
 
-    // Функция лайка (теперь она точно сработает)
-    window.pressLike = async (id) => {
-        if (!auth.currentUser) return alert("Нужно войти в аккаунт!");
+    // Конвертация фото
+    const toBase64 = file => new Promise((res) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => res(reader.result);
+    });
+
+    // Функция лайка
+    window.doLike = async (id) => {
+        if (!auth.currentUser) return alert("Войдите!");
         await updateDoc(doc(db, "requests", id), { likes: increment(1) });
     };
 
-    // Отправка поста
+    // Отправка (Текст + Фото)
     document.getElementById('sendBtn').onclick = async () => {
-        const text = document.getElementById('msg').value;
-        if (!text) return;
+        const text = document.getElementById('postText').value;
+        const file = document.getElementById('postFile').files[0];
+        if (!text && !file) return;
+
+        let base64 = null;
+        if (file) {
+            if (file.size > 600000) return alert("Фото слишком тяжелое!");
+            base64 = await toBase64(file);
+        }
+
         await addDoc(collection(db, "requests"), {
             name: auth.currentUser.displayName,
             photo: auth.currentUser.photoURL,
             text: text,
+            image: base64,
             likes: 0,
             timestamp: serverTimestamp()
         });
-        document.getElementById('msg').value = "";
+
+        document.getElementById('postText').value = "";
+        document.getElementById('postFile').value = "";
     };
 
-    // Обновление топа
-    onSnapshot(query(collection(db, "requests"), orderBy("likes", "desc"), limit(3)), (snap) => {
-        const list = document.getElementById('leadersList');
-        list.innerHTML = "";
-        snap.forEach(d => {
-            list.innerHTML += `<div><b>${d.data().name.split(' ')[0]}</b><br>❤️ ${d.data().likes}</div>`;
-        });
-    });
-
-    // Обновление ленты
+    // Лента
     onSnapshot(query(collection(db, "requests"), orderBy("timestamp", "desc")), (snap) => {
         const feed = document.getElementById('feed');
         feed.innerHTML = "";
@@ -158,11 +137,14 @@
             feed.innerHTML += `
                 <div class="post">
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-                        <img src="${data.photo}" style="width:25px; border-radius:50%;">
-                        <b>${data.name}</b>
+                        <img src="${data.photo}" style="width:30px; border-radius:50%;">
+                        <b style="font-size:14px;">${data.name}</b>
                     </div>
-                    <div>${data.text}</div>
-                    <button class="like-btn" onclick="pressLike('${d.id}')">👍 ${data.likes || 0}</button>
+                    <div style="font-size:15px;">${data.text || ""}</div>
+                    ${data.image ? `<img src="${data.image}" class="post-img">` : ""}
+                    <div style="margin-top:10px;">
+                        <button class="like-btn" onclick="doLike('${d.id}')">👍 ${data.likes || 0}</button>
+                    </div>
                 </div>`;
         });
     });
