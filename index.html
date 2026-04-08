@@ -6,7 +6,6 @@
     <title>Cloud App — Elizaveta</title>
     <style>
         :root {
-            /* Новый пудрово-розовый цвет */
             --accent: #ec407a; 
             --accent-light: #f8bbd0;
             --bg-color: #fdf2f5; 
@@ -21,7 +20,6 @@
             color: #444;
         }
 
-        /* Шапка */
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 60px;
             background: var(--white); display: flex; align-items: center;
@@ -29,24 +27,12 @@
             box-shadow: 0 2px 15px rgba(236, 64, 122, 0.1); z-index: 1000;
         }
 
-        .logo { 
-            font-weight: bold; 
-            color: var(--accent); 
-            font-size: 1.2rem; 
-            letter-spacing: 1px;
-        }
-
+        .logo { font-weight: bold; color: var(--accent); font-size: 1.2rem; }
         .auth-container { display: flex; align-items: center; gap: 10px; }
         .user-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent-light); }
         
-        .btn {
-            padding: 8px 18px; border-radius: 20px; border: none;
-            cursor: pointer; font-weight: 600; transition: 0.3s;
-        }
-        .btn-login { 
-            background: linear-gradient(135deg, #f06292, #ec407a); 
-            color: white; 
-        }
+        .btn { padding: 8px 18px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .btn-login { background: linear-gradient(135deg, #f06292, #ec407a); color: white; }
         .btn-logout { background: #cfd8dc; color: #546e7a; font-size: 11px; }
 
         .card {
@@ -55,56 +41,41 @@
             box-shadow: 0 8px 20px rgba(236, 64, 122, 0.05); box-sizing: border-box;
         }
 
-        input[type="text"] {
+        input[type="text"], .search-input {
             width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #fce4ec;
-            border-radius: 12px; outline: none; box-sizing: border-box;
-            background: #fffcfd;
+            border-radius: 12px; outline: none; box-sizing: border-box; background: #fffcfd;
         }
 
-        input[type="text"]:focus {
-            border-color: var(--accent-light);
-            box-shadow: 0 0 0 3px rgba(248, 187, 208, 0.3);
-        }
-
-        input[type="file"] {
-            margin: 10px 0; font-size: 13px; color: #888;
-        }
+        .search-input { margin-bottom: 20px; border: 2px solid var(--accent-light); }
 
         .btn-send { 
             background: linear-gradient(135deg, #f06292, #ec407a); 
             color: white; width: 100%; padding: 12px; border-radius: 12px; margin-top: 10px;
-            box-shadow: 0 4px 10px rgba(236, 64, 122, 0.2);
         }
-        .btn-send:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .post {
             background: white; border-radius: 20px; padding: 18px;
             margin-bottom: 15px; width: 90%; max-width: 500px;
             border-left: 6px solid var(--accent-light); box-sizing: border-box;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
         
-        .post-image {
-            width: 100%; border-radius: 12px; margin-top: 12px;
-            display: block;
-        }
-
+        .post-image { width: 100%; border-radius: 12px; margin-top: 12px; }
         .post-header { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 10px; }
         .post-author { display: flex; align-items: center; gap: 8px; color: #444; font-weight: bold; }
         
-        .like-btn {
+        .actions { display: flex; gap: 10px; margin-top: 12px; }
+        .like-btn, .reply-btn {
             background: #fff5f8; border: 1px solid #fce4ec;
-            padding: 6px 16px; border-radius: 20px; cursor: pointer;
-            color: var(--accent); font-weight: bold; margin-top: 12px;
-            transition: 0.2s;
+            padding: 6px 14px; border-radius: 15px; cursor: pointer;
+            color: var(--accent); font-weight: bold; font-size: 12px;
         }
-        .like-btn:hover { background: var(--accent-light); color: white; }
 
-        .top-item {
-            font-size: 14px;
-            padding: 5px;
+        /* Стили ответов */
+        .replies-container {
+            margin-top: 10px; padding-left: 15px; border-left: 2px dashed var(--accent-light);
         }
-        .top-item b { color: var(--accent); }
+        .reply-item { font-size: 13px; background: #fffafb; padding: 8px; border-radius: 10px; margin-top: 5px; }
+        .reply-author { font-weight: bold; color: var(--accent); margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -112,9 +83,8 @@
 <header class="header">
     <div class="logo">ELIZAVETA.CLOUD</div>
     <div id="authContent">
-        <button id="loginBtn" class="btn btn-login">Войти через Google</button>
+        <button id="loginBtn" class="btn btn-login">Войти</button>
         <div id="userInfo" class="auth-container" style="display: none;">
-            <span id="userName" style="font-weight: bold; font-size: 14px;"></span>
             <img id="userPhoto" class="user-avatar" src="" alt="avatar">
             <button id="logoutBtn" class="btn btn-logout">Выйти</button>
         </div>
@@ -122,23 +92,23 @@
 </header>
 
 <div class="card">
-    <center><strong style="color: var(--accent);">💖 Зал славы (Топ-3)</strong></center>
-    <div id="leadersList" style="display: flex; justify-content: space-around; margin-top: 15px;">Загрузка...</div>
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по записям...">
+    <center><strong style="color: var(--accent);">💖 Топ авторов</strong></center>
+    <div id="leadersList" style="display: flex; justify-content: space-around; margin-top: 15px; font-size: 12px;"></div>
 </div>
 
 <div class="card" id="messageForm" style="display: none;">
-    <h3 style="margin: 0 0 10px 0; color: var(--accent);">Создать запись</h3>
+    <h3 style="margin: 0 0 10px 0; color: var(--accent);">Новая запись</h3>
     <input type="text" id="postContent" placeholder="Что у вас нового?">
-    <label style="font-size: 12px; color: var(--accent); font-weight: 600;">Прикрепить фото:</label>
     <input type="file" id="imageInput" accept="image/*">
-    <button id="mainBtn" class="btn btn-send">Опубликовать в облако</button>
+    <button id="mainBtn" class="btn btn-send">Опубликовать</button>
 </div>
 
 <div id="feed" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, updateDoc, doc, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, updateDoc, doc, increment, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -155,22 +125,24 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
+    let allPosts = []; // Локальное хранилище для поиска
+
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            document.getElementById('loginBtn').style.display = 'none';
-            document.getElementById('userInfo').style.display = 'flex';
-            document.getElementById('messageForm').style.display = 'block';
-            document.getElementById('userName').innerText = user.displayName;
-            document.getElementById('userPhoto').src = user.photoURL;
-        } else {
-            document.getElementById('loginBtn').style.display = 'block';
-            document.getElementById('userInfo').style.display = 'none';
-            document.getElementById('messageForm').style.display = 'none';
-        }
+        const isAuth = !!user;
+        document.getElementById('loginBtn').style.display = isAuth ? 'none' : 'block';
+        document.getElementById('userInfo').style.display = isAuth ? 'flex' : 'none';
+        document.getElementById('messageForm').style.display = isAuth ? 'block' : 'none';
+        if(isAuth) document.getElementById('userPhoto').src = user.photoURL;
     });
 
     document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+    // Функция поиска
+    document.getElementById('searchInput').oninput = (e) => {
+        const term = e.target.value.toLowerCase();
+        renderFeed(allPosts.filter(p => p.text.toLowerCase().includes(term)));
+    };
 
     const toBase64 = file => new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -181,31 +153,21 @@
 
     document.getElementById('mainBtn').onclick = async () => {
         const content = document.getElementById('postContent').value;
-        const fileInput = document.getElementById('imageInput');
-        const file = fileInput.files[0];
+        const file = document.getElementById('imageInput').files[0];
+        if (!content && !file) return;
 
-        if (!content && !file) return alert("Введите текст или выберите фото!");
+        let imgData = file ? await toBase64(file) : null;
 
-        let imgData = null;
-        if (file) {
-            if (file.size > 800000) return alert("Фото слишком большое! Выберите файл до 800КБ.");
-            imgData = await toBase64(file);
-        }
-
-        try {
-            await addDoc(collection(db, "requests"), {
-                name: auth.currentUser.displayName,
-                photo: auth.currentUser.photoURL,
-                text: content,
-                image: imgData,
-                likes: 0,
-                timestamp: serverTimestamp()
-            });
-            document.getElementById('postContent').value = "";
-            fileInput.value = "";
-        } catch (e) {
-            alert("Ошибка сохранения!");
-        }
+        await addDoc(collection(db, "requests"), {
+            name: auth.currentUser.displayName,
+            photo: auth.currentUser.photoURL,
+            text: content,
+            image: imgData,
+            likes: 0,
+            replies: [], // Поле для ответов
+            timestamp: serverTimestamp()
+        });
+        document.getElementById('postContent').value = "";
     };
 
     window.processLike = async (id) => {
@@ -213,38 +175,58 @@
         await updateDoc(doc(db, "requests", id), { likes: increment(1) });
     };
 
-    onSnapshot(query(collection(db, "requests"), orderBy("likes", "desc"), limit(3)), (snap) => {
-        const list = document.getElementById('leadersList');
-        list.innerHTML = "";
-        let rank = 1;
-        snap.forEach(d => {
-            list.innerHTML += `<div class="top-item">#${rank} ${d.data().name.split(' ')[0]} <b>❤️ ${d.data().likes || 0}</b></div>`;
-            rank++;
-        });
-    });
+    window.sendReply = async (id) => {
+        if (!auth.currentUser) return alert("Войдите!");
+        const replyText = prompt("Ваш ответ:");
+        if (!replyText) return;
 
-    onSnapshot(query(collection(db, "requests"), orderBy("timestamp", "desc")), (snap) => {
+        const postRef = doc(db, "requests", id);
+        const postSnap = allPosts.find(p => p.id === id);
+        const newReplies = [...(postSnap.replies || []), {
+            author: auth.currentUser.displayName,
+            text: replyText
+        }];
+        
+        await updateDoc(postRef, { replies: newReplies });
+    };
+
+    function renderFeed(posts) {
         const feed = document.getElementById('feed');
         feed.innerHTML = "";
-        snap.forEach(docSnap => {
-            const data = docSnap.data();
+        posts.forEach(data => {
             const time = data.timestamp ? data.timestamp.toDate().toLocaleTimeString() : "...";
-            const imageHtml = data.image ? `<img src="${data.image}" class="post-image">` : "";
+            const repliesHtml = (data.replies || []).map(r => `
+                <div class="reply-item"><span class="reply-author">${r.author}:</span>${r.text}</div>
+            `).join('');
 
             feed.innerHTML += `
                 <div class="post">
                     <div class="post-header">
                         <div class="post-author">
-                            <img src="${data.photo || 'https://via.placeholder.com/30'}" style="width:25px; height:25px; border-radius:50%;">
+                            <img src="${data.photo}" style="width:25px; height:25px; border-radius:50%;">
                             ${data.name}
                         </div>
                         <span>${time}</span>
                     </div>
-                    <div style="line-height: 1.5;">${data.text || ""}</div>
-                    ${imageHtml}
-                    <button class="like-btn" onclick="processLike('${docSnap.id}')">💗 ${data.likes || 0}</button>
+                    <div>${data.text}</div>
+                    ${data.image ? `<img src="${data.image}" class="post-image">` : ""}
+                    <div class="actions">
+                        <button class="like-btn" onclick="processLike('${data.id}')">💗 ${data.likes}</button>
+                        <button class="reply-btn" onclick="sendReply('${data.id}')">💬 Ответить</button>
+                    </div>
+                    <div class="replies-container">${repliesHtml}</div>
                 </div>`;
         });
+    }
+
+    onSnapshot(query(collection(db, "requests"), orderBy("timestamp", "desc")), (snap) => {
+        allPosts = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        renderFeed(allPosts);
+    });
+
+    onSnapshot(query(collection(db, "requests"), orderBy("likes", "desc"), limit(3)), (snap) => {
+        const list = document.getElementById('leadersList');
+        list.innerHTML = snap.docs.map((d, i) => `<div>#${i+1} ${d.data().name.split(' ')[0]} <b>❤️ ${d.data().likes}</b></div>`).join('');
     });
 </script>
 </body>
