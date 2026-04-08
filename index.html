@@ -6,8 +6,11 @@
     <title>Cloud App — Elizaveta</title>
     <style>
         :root {
-            --accent: #9c27b0;
-            --bg-color: #f4e8f9;
+            /* Новый пудрово-розовый цвет */
+            --accent: #ec407a; 
+            --accent-light: #f8bbd0;
+            --bg-color: #fdf2f5; 
+            --white: #ffffff;
         }
 
         body {
@@ -15,65 +18,93 @@
             background-color: var(--bg-color);
             margin: 0; padding-top: 80px;
             display: flex; flex-direction: column; align-items: center;
+            color: #444;
         }
 
         /* Шапка */
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 60px;
-            background: white; display: flex; align-items: center;
+            background: var(--white); display: flex; align-items: center;
             justify-content: space-between; padding: 0 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000;
+            box-shadow: 0 2px 15px rgba(236, 64, 122, 0.1); z-index: 1000;
         }
 
-        .logo { font-weight: bold; color: var(--accent); font-size: 1.2rem; }
+        .logo { 
+            font-weight: bold; 
+            color: var(--accent); 
+            font-size: 1.2rem; 
+            letter-spacing: 1px;
+        }
+
         .auth-container { display: flex; align-items: center; gap: 10px; }
-        .user-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent); }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent-light); }
         
         .btn {
-            padding: 8px 16px; border-radius: 20px; border: none;
+            padding: 8px 18px; border-radius: 20px; border: none;
             cursor: pointer; font-weight: 600; transition: 0.3s;
         }
-        .btn-login { background: var(--accent); color: white; }
-        .btn-logout { background: #ff5252; color: white; font-size: 12px; }
+        .btn-login { 
+            background: linear-gradient(135deg, #f06292, #ec407a); 
+            color: white; 
+        }
+        .btn-logout { background: #cfd8dc; color: #546e7a; font-size: 11px; }
 
         .card {
             width: 90%; max-width: 500px; background: white;
             border-radius: 20px; padding: 20px; margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box;
+            box-shadow: 0 8px 20px rgba(236, 64, 122, 0.05); box-sizing: border-box;
         }
 
         input[type="text"] {
-            width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd;
-            border-radius: 10px; outline: none; box-sizing: border-box;
+            width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #fce4ec;
+            border-radius: 12px; outline: none; box-sizing: border-box;
+            background: #fffcfd;
         }
 
-        /* Стили для выбора файла */
+        input[type="text"]:focus {
+            border-color: var(--accent-light);
+            box-shadow: 0 0 0 3px rgba(248, 187, 208, 0.3);
+        }
+
         input[type="file"] {
-            margin: 10px 0; font-size: 13px; color: #666;
+            margin: 10px 0; font-size: 13px; color: #888;
         }
 
-        .btn-send { background: var(--accent); color: white; width: 100%; padding: 12px; border-radius: 10px; margin-top: 10px; }
+        .btn-send { 
+            background: linear-gradient(135deg, #f06292, #ec407a); 
+            color: white; width: 100%; padding: 12px; border-radius: 12px; margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(236, 64, 122, 0.2);
+        }
+        .btn-send:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .post {
-            background: white; border-radius: 15px; padding: 15px;
+            background: white; border-radius: 20px; padding: 18px;
             margin-bottom: 15px; width: 90%; max-width: 500px;
-            border-left: 5px solid var(--accent); box-sizing: border-box;
+            border-left: 6px solid var(--accent-light); box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
         
-        /* Стиль для картинки в посте */
         .post-image {
-            width: 100%; border-radius: 10px; margin-top: 10px;
-            display: block; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 100%; border-radius: 12px; margin-top: 12px;
+            display: block;
         }
 
-        .post-header { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-bottom: 10px; }
-        .post-author { display: flex; align-items: center; gap: 8px; color: #333; font-weight: bold; }
+        .post-header { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 10px; }
+        .post-author { display: flex; align-items: center; gap: 8px; color: #444; font-weight: bold; }
         
         .like-btn {
-            background: #fdf5ff; border: 1px solid #eee;
-            padding: 5px 15px; border-radius: 20px; cursor: pointer;
-            color: var(--accent); font-weight: bold; margin-top: 10px;
+            background: #fff5f8; border: 1px solid #fce4ec;
+            padding: 6px 16px; border-radius: 20px; cursor: pointer;
+            color: var(--accent); font-weight: bold; margin-top: 12px;
+            transition: 0.2s;
         }
+        .like-btn:hover { background: var(--accent-light); color: white; }
+
+        .top-item {
+            font-size: 14px;
+            padding: 5px;
+        }
+        .top-item b { color: var(--accent); }
     </style>
 </head>
 <body>
@@ -91,14 +122,14 @@
 </header>
 
 <div class="card">
-    <center><strong>&#127942; Зал славы (Топ-3)</strong></center>
+    <center><strong style="color: var(--accent);">💖 Зал славы (Топ-3)</strong></center>
     <div id="leadersList" style="display: flex; justify-content: space-around; margin-top: 15px;">Загрузка...</div>
 </div>
 
 <div class="card" id="messageForm" style="display: none;">
-    <h3 style="margin: 0 0 10px 0;">Создать запись</h3>
+    <h3 style="margin: 0 0 10px 0; color: var(--accent);">Создать запись</h3>
     <input type="text" id="postContent" placeholder="Что у вас нового?">
-    <label style="font-size: 12px; color: var(--accent);">Прикрепить фото:</label>
+    <label style="font-size: 12px; color: var(--accent); font-weight: 600;">Прикрепить фото:</label>
     <input type="file" id="imageInput" accept="image/*">
     <button id="mainBtn" class="btn btn-send">Опубликовать в облако</button>
 </div>
@@ -124,7 +155,6 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // Авторизация
     onAuthStateChanged(auth, (user) => {
         if (user) {
             document.getElementById('loginBtn').style.display = 'none';
@@ -142,7 +172,6 @@
     document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
-    // Конвертация картинки в текст (Base64)
     const toBase64 = file => new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -150,7 +179,6 @@
         reader.onerror = error => reject(error);
     });
 
-    // ОТПРАВКА СООБЩЕНИЯ С ФОТО
     document.getElementById('mainBtn').onclick = async () => {
         const content = document.getElementById('postContent').value;
         const fileInput = document.getElementById('imageInput');
@@ -160,7 +188,6 @@
 
         let imgData = null;
         if (file) {
-            // Если фото больше 1МБ, лучше предупредить (Firestore имеет лимит на размер документа)
             if (file.size > 800000) return alert("Фото слишком большое! Выберите файл до 800КБ.");
             imgData = await toBase64(file);
         }
@@ -170,14 +197,14 @@
                 name: auth.currentUser.displayName,
                 photo: auth.currentUser.photoURL,
                 text: content,
-                image: imgData, // Сохраняем фото
+                image: imgData,
                 likes: 0,
                 timestamp: serverTimestamp()
             });
             document.getElementById('postContent').value = "";
-            fileInput.value = ""; // Очистить выбор файла
+            fileInput.value = "";
         } catch (e) {
-            alert("Ошибка! Проверьте правила доступа в Firebase.");
+            alert("Ошибка сохранения!");
         }
     };
 
@@ -186,26 +213,22 @@
         await updateDoc(doc(db, "requests", id), { likes: increment(1) });
     };
 
-    // Обновление топа
     onSnapshot(query(collection(db, "requests"), orderBy("likes", "desc"), limit(3)), (snap) => {
         const list = document.getElementById('leadersList');
         list.innerHTML = "";
         let rank = 1;
         snap.forEach(d => {
-            list.innerHTML += `<div class="top-item">#${rank} ${d.data().name.split(' ')[0]}<b>❤️ ${d.data().likes || 0}</b></div>`;
+            list.innerHTML += `<div class="top-item">#${rank} ${d.data().name.split(' ')[0]} <b>❤️ ${d.data().likes || 0}</b></div>`;
             rank++;
         });
     });
 
-    // Лента с отображением ФОТО
     onSnapshot(query(collection(db, "requests"), orderBy("timestamp", "desc")), (snap) => {
         const feed = document.getElementById('feed');
         feed.innerHTML = "";
         snap.forEach(docSnap => {
             const data = docSnap.data();
             const time = data.timestamp ? data.timestamp.toDate().toLocaleTimeString() : "...";
-            
-            // Если в данных есть image, создаем тег img
             const imageHtml = data.image ? `<img src="${data.image}" class="post-image">` : "";
 
             feed.innerHTML += `
@@ -217,9 +240,9 @@
                         </div>
                         <span>${time}</span>
                     </div>
-                    <div>${data.text || ""}</div>
+                    <div style="line-height: 1.5;">${data.text || ""}</div>
                     ${imageHtml}
-                    <button class="like-btn" onclick="processLike('${docSnap.id}')">👍 ${data.likes || 0}</button>
+                    <button class="like-btn" onclick="processLike('${docSnap.id}')">💗 ${data.likes || 0}</button>
                 </div>`;
         });
     });
