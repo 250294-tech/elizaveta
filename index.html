@@ -20,7 +20,6 @@
             color: #444;
         }
 
-        /* Шапка */
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 60px;
             background: var(--white); display: flex; align-items: center;
@@ -52,10 +51,8 @@
             color: white; border-radius: 12px; border: none; cursor: pointer;
         }
 
-        /* Чат (Дизайн Лизы) */
-        .users-list { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
-        .users-list::-webkit-scrollbar { display: none; }
-        
+        /* Чат */
+        .users-list { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; min-height: 60px; }
         .user-item { cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 65px; }
         .user-item:hover { transform: scale(1.1); }
         .user-item span { font-size: 11px; color: var(--accent); font-weight: 600; }
@@ -67,7 +64,7 @@
             flex-direction: column; gap: 8px; margin-bottom: 10px; 
         }
 
-        .msg { padding: 10px 14px; border-radius: 18px; max-width: 80%; font-size: 13px; line-height: 1.4; }
+        .msg { padding: 10px 14px; border-radius: 18px; max-width: 80%; font-size: 13px; }
         .msg.sent { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
         .msg.received { background: #eee; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
 
@@ -104,31 +101,31 @@
 </header>
 
 <div class="card">
-    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по записям...">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по ленте...">
     <center><strong style="color: var(--accent);">💖 Топ авторов</strong></center>
-    <div id="leadersList" style="display: flex; justify-content: space-around; margin-top: 10px; font-size: 12px;"></div>
+    <div id="leadersList" style="display: flex; justify-content: space-around; margin-top: 10px; font-size: 12px;">Загрузка...</div>
 </div>
 
 <div class="card" id="dmContainer" style="display: none;">
-    <h3 style="margin:0; color: var(--accent); font-size: 16px;">💬 Личные сообщения</h3>
-    <p style="color: #f06292; font-size: 12px; margin: 5px 0 10px 0;">Выберите собеседника:</p>
+    <h3 style="margin:0; color: var(--accent); font-size: 16px;">💌 Личные сообщения</h3>
+    <p style="color: #f06292; font-size: 12px; margin: 5px 0;">Выберите, кому написать:</p>
     <div id="usersList" class="users-list"></div>
     
     <div id="activeChat">
         <h4 id="chatWithTitle" style="font-size: 11px; margin-bottom: 10px; color: #888;"></h4>
         <div id="messagesDisplay" class="messages-display"></div>
         <div style="display: flex; gap: 8px;">
-            <input type="text" id="dmInput" placeholder="Ваше сообщение..." style="margin:0;">
+            <input type="text" id="dmInput" placeholder="Твоё сообщение..." style="margin:0;">
             <button id="sendDmBtn" class="pink-btn" style="width: 50px;">➜</button>
         </div>
     </div>
 </div>
 
 <div class="card" id="messageForm" style="display: none;">
-    <h3 style="margin: 0 0 10px 0; color: var(--accent);">Новая запись</h3>
-    <input type="text" id="postContent" placeholder="Что у вас нового?">
-    <input type="file" id="imageInput" accept="image/*">
-    <button id="mainBtn" class="btn btn-send">Опубликовать в облако</button>
+    <h3 style="margin: 0 0 10px 0; color: var(--accent);">Новый пост</h3>
+    <input type="text" id="postContent" placeholder="О чём ты думаешь?">
+    <input type="file" id="imageInput" accept="image/*" style="font-size: 11px;">
+    <button id="mainBtn" class="btn btn-send" style="width:100%; margin-top:10px;">Опубликовать</button>
 </div>
 
 <div id="feed" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
@@ -151,34 +148,38 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
+    // Принудительный выбор аккаунта
+    provider.setCustomParameters({ prompt: 'select_account' });
 
     let allPosts = [];
     let selectedUserId = null;
     let chatUnsub = null;
 
     onAuthStateChanged(auth, async (user) => {
-        const isAuth = !!user;
-        document.getElementById('loginBtn').style.display = isAuth ? 'none' : 'block';
-        document.getElementById('userInfo').style.display = isAuth ? 'flex' : 'none';
-        document.getElementById('messageForm').style.display = isAuth ? 'block' : 'none';
-        document.getElementById('dmContainer').style.display = isAuth ? 'block' : 'none';
-
-        if (isAuth) {
+        if (user) {
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'flex';
+            document.getElementById('messageForm').style.display = 'block';
+            document.getElementById('dmContainer').style.display = 'block';
             document.getElementById('userPhoto').src = user.photoURL;
-            // Регистрация пользователя в БД
+
             await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
                 displayName: user.displayName,
                 photoURL: user.photoURL
             });
             loadUsers(user.uid);
+        } else {
+            document.getElementById('loginBtn').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('messageForm').style.display = 'none';
+            document.getElementById('dmContainer').style.display = 'none';
         }
     });
 
     document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
-    // --- ФУНКЦИИ ЛС ---
     function loadUsers(myId) {
         onSnapshot(collection(db, "users"), (snap) => {
             const list = document.getElementById("usersList");
@@ -233,7 +234,6 @@
         input.value = "";
     };
 
-    // --- ФУНКЦИИ ЛЕНТЫ ---
     document.getElementById('searchInput').oninput = (e) => {
         const term = e.target.value.toLowerCase();
         renderFeed(allPosts.filter(p => p.text.toLowerCase().includes(term)));
@@ -251,6 +251,7 @@
         const file = document.getElementById('imageInput').files[0];
         if (!content && !file) return;
         let imgData = file ? await toBase64(file) : null;
+
         await addDoc(collection(db, "requests"), {
             name: auth.currentUser.displayName,
             photo: auth.currentUser.photoURL,
@@ -264,12 +265,10 @@
     };
 
     window.processLike = async (id) => {
-        if (!auth.currentUser) return alert("Войдите!");
         await updateDoc(doc(db, "requests", id), { likes: increment(1) });
     };
 
     window.sendReply = async (id) => {
-        if (!auth.currentUser) return;
         const replyText = prompt("Ваш ответ:");
         if (!replyText) return;
         const post = allPosts.find(p => p.id === id);
