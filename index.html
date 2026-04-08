@@ -20,6 +20,7 @@
             color: #444;
         }
 
+        /* Шапка */
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 60px;
             background: var(--white); display: flex; align-items: center;
@@ -27,7 +28,7 @@
             box-shadow: 0 2px 15px rgba(236, 64, 122, 0.1); z-index: 1000;
         }
 
-        .logo { font-weight: bold; color: var(--accent); font-size: 1.2rem; }
+        .logo { font-weight: bold; color: var(--accent); font-size: 1.2rem; letter-spacing: 1px; }
         .auth-container { display: flex; align-items: center; gap: 10px; }
         .user-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent-light); }
         
@@ -46,36 +47,47 @@
             border-radius: 12px; outline: none; box-sizing: border-box; background: #fffcfd;
         }
 
-        .search-input { margin-bottom: 20px; border: 2px solid var(--accent-light); }
-
-        .btn-send { 
+        .btn-send, .pink-btn { 
             background: linear-gradient(135deg, #f06292, #ec407a); 
-            color: white; width: 100%; padding: 12px; border-radius: 12px; margin-top: 10px;
+            color: white; border-radius: 12px; border: none; cursor: pointer;
         }
 
+        /* Чат (Дизайн Лизы) */
+        .users-list { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
+        .users-list::-webkit-scrollbar { display: none; }
+        
+        .user-item { cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 65px; }
+        .user-item:hover { transform: scale(1.1); }
+        .user-item span { font-size: 11px; color: var(--accent); font-weight: 600; }
+
+        #activeChat { display: none; margin-top: 15px; border-top: 1px solid #fce4ec; padding-top: 15px; }
+        .messages-display { 
+            height: 200px; overflow-y: auto; background: #fffcfd; 
+            border-radius: 15px; padding: 15px; display: flex; 
+            flex-direction: column; gap: 8px; margin-bottom: 10px; 
+        }
+
+        .msg { padding: 10px 14px; border-radius: 18px; max-width: 80%; font-size: 13px; line-height: 1.4; }
+        .msg.sent { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg.received { background: #eee; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
+
+        /* Посты */
         .post {
             background: white; border-radius: 20px; padding: 18px;
             margin-bottom: 15px; width: 90%; max-width: 500px;
             border-left: 6px solid var(--accent-light); box-sizing: border-box;
         }
-        
         .post-image { width: 100%; border-radius: 12px; margin-top: 12px; }
-        .post-header { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 10px; }
+        .post-header { display: flex; justify-content: space-between; font-size: 11px; color: #aaa; margin-bottom: 10px; }
         .post-author { display: flex; align-items: center; gap: 8px; color: #444; font-weight: bold; }
-        
-        .actions { display: flex; gap: 10px; margin-top: 12px; }
+        .actions { display: flex; gap: 8px; margin-top: 12px; }
         .like-btn, .reply-btn {
             background: #fff5f8; border: 1px solid #fce4ec;
             padding: 6px 14px; border-radius: 15px; cursor: pointer;
-            color: var(--accent); font-weight: bold; font-size: 12px;
+            color: var(--accent); font-weight: bold; font-size: 11px;
         }
-
-        /* Стили ответов */
-        .replies-container {
-            margin-top: 10px; padding-left: 15px; border-left: 2px dashed var(--accent-light);
-        }
-        .reply-item { font-size: 13px; background: #fffafb; padding: 8px; border-radius: 10px; margin-top: 5px; }
-        .reply-author { font-weight: bold; color: var(--accent); margin-right: 5px; }
+        .replies-container { margin-top: 10px; padding-left: 12px; border-left: 2px dashed var(--accent-light); }
+        .reply-item { font-size: 12px; background: #fffafb; padding: 6px 10px; border-radius: 8px; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -94,21 +106,36 @@
 <div class="card">
     <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по записям...">
     <center><strong style="color: var(--accent);">💖 Топ авторов</strong></center>
-    <div id="leadersList" style="display: flex; justify-content: space-around; margin-top: 15px; font-size: 12px;"></div>
+    <div id="leadersList" style="display: flex; justify-content: space-around; margin-top: 10px; font-size: 12px;"></div>
+</div>
+
+<div class="card" id="dmContainer" style="display: none;">
+    <h3 style="margin:0; color: var(--accent); font-size: 16px;">💬 Личные сообщения</h3>
+    <p style="color: #f06292; font-size: 12px; margin: 5px 0 10px 0;">Выберите собеседника:</p>
+    <div id="usersList" class="users-list"></div>
+    
+    <div id="activeChat">
+        <h4 id="chatWithTitle" style="font-size: 11px; margin-bottom: 10px; color: #888;"></h4>
+        <div id="messagesDisplay" class="messages-display"></div>
+        <div style="display: flex; gap: 8px;">
+            <input type="text" id="dmInput" placeholder="Ваше сообщение..." style="margin:0;">
+            <button id="sendDmBtn" class="pink-btn" style="width: 50px;">➜</button>
+        </div>
+    </div>
 </div>
 
 <div class="card" id="messageForm" style="display: none;">
     <h3 style="margin: 0 0 10px 0; color: var(--accent);">Новая запись</h3>
     <input type="text" id="postContent" placeholder="Что у вас нового?">
     <input type="file" id="imageInput" accept="image/*">
-    <button id="mainBtn" class="btn btn-send">Опубликовать</button>
+    <button id="mainBtn" class="btn btn-send">Опубликовать в облако</button>
 </div>
 
 <div id="feed" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, updateDoc, doc, increment, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, updateDoc, doc, increment, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -125,20 +152,88 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    let allPosts = []; // Локальное хранилище для поиска
+    let allPosts = [];
+    let selectedUserId = null;
+    let chatUnsub = null;
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         const isAuth = !!user;
         document.getElementById('loginBtn').style.display = isAuth ? 'none' : 'block';
         document.getElementById('userInfo').style.display = isAuth ? 'flex' : 'none';
         document.getElementById('messageForm').style.display = isAuth ? 'block' : 'none';
-        if(isAuth) document.getElementById('userPhoto').src = user.photoURL;
+        document.getElementById('dmContainer').style.display = isAuth ? 'block' : 'none';
+
+        if (isAuth) {
+            document.getElementById('userPhoto').src = user.photoURL;
+            // Регистрация пользователя в БД
+            await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
+                displayName: user.displayName,
+                photoURL: user.photoURL
+            });
+            loadUsers(user.uid);
+        }
     });
 
     document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
-    // Функция поиска
+    // --- ФУНКЦИИ ЛС ---
+    function loadUsers(myId) {
+        onSnapshot(collection(db, "users"), (snap) => {
+            const list = document.getElementById("usersList");
+            list.innerHTML = "";
+            snap.forEach(uDoc => {
+                const user = uDoc.data();
+                if (user.uid !== myId) {
+                    const item = document.createElement("div");
+                    item.className = "user-item";
+                    item.innerHTML = `
+                        <img src="${user.photoURL}" style="width:45px;height:45px;border-radius:50%;border:2px solid var(--accent-light)">
+                        <span>${user.displayName.split(' ')[0]}</span>
+                    `;
+                    item.onclick = () => openChat(user.uid, user.displayName);
+                    list.appendChild(item);
+                }
+            });
+        });
+    }
+
+    async function openChat(targetId, targetName) {
+        selectedUserId = targetId;
+        document.getElementById("activeChat").style.display = "block";
+        document.getElementById("chatWithTitle").innerText = `Чат с: ${targetName}`;
+        if (chatUnsub) chatUnsub();
+        
+        const myId = auth.currentUser.uid;
+        const chatId = myId < targetId ? `${myId}_${targetId}` : `${targetId}_${myId}`;
+        
+        const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "asc"));
+        chatUnsub = onSnapshot(q, (snap) => {
+            const box = document.getElementById("messagesDisplay");
+            box.innerHTML = "";
+            snap.forEach(m => {
+                const d = m.data();
+                const side = d.senderId === myId ? "sent" : "received";
+                box.innerHTML += `<div class="msg ${side}">${d.text}</div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    document.getElementById("sendDmBtn").onclick = async () => {
+        const input = document.getElementById("dmInput");
+        const val = input.value.trim();
+        if (!val || !selectedUserId) return;
+        const myId = auth.currentUser.uid;
+        const chatId = myId < selectedUserId ? `${myId}_${selectedUserId}` : `${selectedUserId}_${myId}`;
+        await addDoc(collection(db, "chats", chatId, "messages"), { 
+            senderId: myId, text: val, timestamp: serverTimestamp() 
+        });
+        input.value = "";
+    };
+
+    // --- ФУНКЦИИ ЛЕНТЫ ---
     document.getElementById('searchInput').oninput = (e) => {
         const term = e.target.value.toLowerCase();
         renderFeed(allPosts.filter(p => p.text.toLowerCase().includes(term)));
@@ -155,16 +250,14 @@
         const content = document.getElementById('postContent').value;
         const file = document.getElementById('imageInput').files[0];
         if (!content && !file) return;
-
         let imgData = file ? await toBase64(file) : null;
-
         await addDoc(collection(db, "requests"), {
             name: auth.currentUser.displayName,
             photo: auth.currentUser.photoURL,
             text: content,
             image: imgData,
             likes: 0,
-            replies: [], // Поле для ответов
+            replies: [],
             timestamp: serverTimestamp()
         });
         document.getElementById('postContent').value = "";
@@ -176,18 +269,15 @@
     };
 
     window.sendReply = async (id) => {
-        if (!auth.currentUser) return alert("Войдите!");
+        if (!auth.currentUser) return;
         const replyText = prompt("Ваш ответ:");
         if (!replyText) return;
-
-        const postRef = doc(db, "requests", id);
-        const postSnap = allPosts.find(p => p.id === id);
-        const newReplies = [...(postSnap.replies || []), {
+        const post = allPosts.find(p => p.id === id);
+        const newReplies = [...(post.replies || []), {
             author: auth.currentUser.displayName,
             text: replyText
         }];
-        
-        await updateDoc(postRef, { replies: newReplies });
+        await updateDoc(doc(db, "requests", id), { replies: newReplies });
     };
 
     function renderFeed(posts) {
@@ -196,14 +286,14 @@
         posts.forEach(data => {
             const time = data.timestamp ? data.timestamp.toDate().toLocaleTimeString() : "...";
             const repliesHtml = (data.replies || []).map(r => `
-                <div class="reply-item"><span class="reply-author">${r.author}:</span>${r.text}</div>
+                <div class="reply-item"><b>${r.author}:</b> ${r.text}</div>
             `).join('');
 
             feed.innerHTML += `
                 <div class="post">
                     <div class="post-header">
                         <div class="post-author">
-                            <img src="${data.photo}" style="width:25px; height:25px; border-radius:50%;">
+                            <img src="${data.photo}" style="width:25px;height:25px;border-radius:50%;">
                             ${data.name}
                         </div>
                         <span>${time}</span>
