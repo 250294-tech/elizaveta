@@ -1,24 +1,50 @@
-<script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Монитор статусов</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f4f4f9; }
+        button { padding: 15px 25px; margin: 10px; font-size: 18px; cursor: pointer; border: none; border-radius: 8px; color: white; }
+        .btn-study { background: #2ecc71; }
+        .btn-coffee { background: #f1c40f; color: #333; }
+        .btn-game { background: #1abc9c; }
+    </style>
+</head>
+<body>
 
-    // ТВОИ ДАННЫЕ
-    const URL = "https://jocrggurfkljvpsgsdem.supabase.co"; 
-    const KEY = "jocrggurfkljvpsgsdem"; 
-    const MY_ID = "f858c516-eb14-4d69-a945-cc2e27fe2a5b"; 
+    <h1>Мой статус</h1>
+    <p>Нажми кнопку, чтобы обновить статус в базе:</p>
+    
+    <button class="btn-study" onclick="changeStatus('📚 Учусь', '#2ecc71')">📚 Учусь</button>
+    <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#f1c40f')">☕ Кофе</button>
+    <button class="btn-game" onclick="changeStatus('🎮 Играю', '#1abc9c')">🎮 Играю</button>
 
-    const supabase = createClient(URL, KEY);
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-    window.changeStatus = async (text, color) => {
-        const { error } = await supabase
-            .from('profiles')
-            .update({ status: text, avatar_url: color })
-            .eq('id', MY_ID);
+        // ТВОИ ДАННЫЕ
+        const URL = "https://jocrggurfkljvpsgsdem.supabase.co"; 
+        const KEY = "jocrggurfkljvpsgsdem"; 
+        const MY_ID = "f858c516-eb14-4d69-a945-cc2e27fe2a5b"; 
 
-        if (error) {
-            alert("Ошибка! Проверь RLS политики в Supabase.");
-            console.error(error);
-        } else {
-            location.reload(); // Перезагрузит страницу, чтобы увидеть новый статус
-        }
-    };
-</script>
+        const supabase = createClient(URL, KEY);
+
+        window.changeStatus = async (text, color) => {
+            const { error } = await supabase
+                .from('profiles')
+                .update({ status: text, avatar_url: color })
+                .eq('id', MY_ID);
+
+            if (error) {
+                alert("Ошибка! Проверь RLS в Supabase (должен быть public).");
+                console.error(error);
+            } else {
+                alert("Статус изменен на: " + text);
+            }
+        };
+    </script>
+</body>
+</html>
+    
+  
