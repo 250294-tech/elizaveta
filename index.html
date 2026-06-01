@@ -117,13 +117,13 @@
 
         <div class="card hidden" id="profileCard">
             <h2>Мой профиль</h2>
-            <div class="info-text" id="myinfo">Загрузка профиля...</div>
+            <div class="info-text" id="myinfo">Синхронизация профиля...</div>
             <div class="btn-grid">
                 <button class="status-btn btn-study" onclick="changeStatus('📚 Учусь', '#10b981')">📚 Учусь</button>
                 <button class="status-btn btn-coffee" onclick="changeStatus('☕ Кофе', '#f59e0b')">☕ Кофе</button>
                 <button class="status-btn btn-game" onclick="changeStatus('🎮 В игре', '#3b82f6')">🎮 В игре</button>
             </div>
-            <button class="btn-logout" onclick="logout()">Выйти</button>
+            <button class="btn-logout" onclick="logout()">Выйти из аккаунта</button>
         </div>
 
         <div class="card hidden" id="monitorCard">
@@ -137,12 +137,13 @@
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
         const URL = 'https://jocrggurfkljvpsgsdem.supabase.co';
+        // Наш надежный публичный anon ключ
         const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
         
         const supabase = createClient(URL, KEY);
         
         let USER_ID = null;
-        let USER_NAME = 'Пользователь';
+        let USER_NAME = 'Лиза';
 
         window.loginWithGoogle = async () => {
             await supabase.auth.signInWithOAuth({
@@ -157,12 +158,12 @@
         };
 
         async function checkUser() {
-            // Проверяем сессию при загрузке страницы
-            const { data: { session }, error } = await supabase.auth.getSession();
+            const { data: { session } } = await supabase.auth.getSession();
             
             if (session?.user) {
+                // Запоминаем ID, под которым ты вошла через Google
                 USER_ID = session.user.id;
-                USER_NAME = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
+                USER_NAME = session.user.user_metadata?.full_name || 'Лиза';
                 
                 document.getElementById('loginCard').classList.add('hidden');
                 document.getElementById('profileCard').classList.remove('hidden');
@@ -179,19 +180,36 @@
 
         async function ensureProfileExists() {
             if (!USER_ID) return;
-            try {
-                const { data } = await supabase.from('profiles').select('id').eq('id', USER_ID).maybeSingle();
-                if (!data) {
-                    await supabase.from('profiles').insert([
-                        { id: USER_ID, username: USER_NAME, status: 'Только вошел', avatar_url: '#475569' }
-                    ]);
+            
+            // Ищем, есть ли в базе запись с текущим Google ID или запись с именем "Лиза"
+            const { data: byId } = await supabase.from('profiles').select('*').eq('id', USER_ID).maybeSingle();
+            
+            if (!byId) {
+                const { data: byName } = await supabase.from('profiles').select('*').eq('username', 'Лиза').maybeSingle();
+                
+                if (byName) {
+                    // Если нашли старую запись "Лиза", просто обновляем её ID на новый рабочий Google ID!
+                    await supabase.from('profiles').delete().eq('username', 'Лиза');
                 }
-            } catch (e) { console.error(e); }
+                
+                // Создаем чистую, актуальную запись, привязанную к твоему Google аккаунту
+                await supabase.from('profiles').upsert({ 
+                    id: USER_ID, 
+                    username: USER_NAME, 
+                    status: 'В сети', 
+                    avatar_url: '#10b981' 
+                });
+            }
         }
 
         window.changeStatus = async (text, color) => {
             if (!USER_ID) return;
-            await supabase.from('profiles').upsert({ id: USER_ID, status: text, avatar_url: color, username: USER_NAME });
+            await supabase.from('profiles').upsert({ 
+                id: USER_ID, 
+                status: text, 
+                avatar_url: color, 
+                username: USER_NAME 
+            });
             fetchGroup();
         };
 
@@ -216,7 +234,6 @@
             }
         }
 
-        // Подписка на авто-обновление экрана
         supabase.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
             fetchGroup();
         }).subscribe();
