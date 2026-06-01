@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Монитор статусов</title>
+    <title>Монитор статусов группы</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -29,6 +29,15 @@
         }
         h2 { margin-top: 0; margin-bottom: 8px; font-size: 1.2rem; color: #1d1d1f; }
         .info-text { color: #86868b; font-size: 0.9rem; margin-bottom: 16px; }
+        
+        .btn-google {
+            background-color: #4285F4;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
         .btn-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -48,6 +57,7 @@
         .btn-study { background-color: #2ecc71; }
         .btn-coffee { background-color: #f1c40f; color: #34495e; }
         .btn-game { background-color: #3498db; grid-column: span 2; }
+        .btn-logout { background-color: #e74c3c; width: 100%; margin-top: 15px; }
         
         .group-list {
             display: flex;
@@ -70,42 +80,117 @@
             background-color: #ccc;
             flex-shrink: 0;
         }
-        .user-info {
-            display: flex;
-            flex-direction: column;
-        }
+        .user-info { display: flex; flex-direction: column; }
         .user-name { font-weight: 600; color: #1d1d1f; font-size: 0.95rem; }
         .user-status { color: #86868b; font-size: 0.8rem; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="card">
+        
+        <div class="card" id="loginCard">
+            <h2>Вход в систему</h2>
+            <p class="info-text">Для управления своим статусом авторизуйтесь через Google аккаунт.</p>
+            <button class="btn-google" onclick="loginWithGoogle()">
+                🌐 Войти через Google
+            </button>
+        </div>
+
+        <div class="card hidden" id="profileCard">
             <h2>Мой профиль</h2>
-            <div class="info-text" id="myinfo">Вы зашли как: Загрузка...</div>
+            <div class="info-text" id="myinfo">Загрузка...</div>
             <div class="btn-grid">
                 <button class="btn-study" onclick="changeStatus('📚 Учусь', '#2ecc71')">📚 Учусь</button>
                 <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#f1c40f')">☕ Кофе</button>
                 <button class="btn-game" onclick="changeStatus('🎮 В игре', '#3498db')">🎮 В игре</button>
             </div>
+            <button class="btn-logout" onclick="logout()">Выйти</button>
         </div>
 
-        <div class="card">
+        <div class="card hidden" id="monitorCard">
             <h2>Монитор группы</h2>
-            <div class="group-list" id="grouplist">
-                Загрузка списка группы...
-            </div>
+            <div class="group-list" id="grouplist">Загрузка списка...</div>
         </div>
+        
     </div>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        // Конфигурация подключения к твоему проекту
+        // Подключение к твоему проекту Supabase
         const URL = 'https://wxtbbyfscvbeidvbyhmv.supabase.co';
         const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dGJieWZzY3ZiZWlkdmJ5aG12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
         const supabase = createClient(URL, KEY);
 
-        // Твой личный ID из таблицы profiles
-        const MY_ID = 'a4ddd46e-13bf-4e3e
+        let USER_ID = null;
+
+        // Вызов окна входа Google
+        window.loginWithGoogle = async () => {
+            await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: window.location.href }
+            });
+        };
+
+        // Выход из системы
+        window.logout = async () => {
+            await supabase.auth.signOut();
+            window.location.reload();
+        };
+
+        // Проверка авторизации при открытии страницы
+        async function checkUser() {
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (user) {
+                USER_ID = user.id;
+                document.getElementById('loginCard').classList.add('hidden');
+                document.getElementById('profileCard').classList.remove('hidden');
+                document.getElementById('monitorCard').classList.remove('hidden');
+                fetchGroup();
+            } else {
+                document.getElementById('loginCard').classList.remove('hidden');
+            }
+        }
+
+        // Обновление личного статуса в базе данных
+        window.changeStatus = async (text, color) => {
+            if (!USER_ID) return;
+            await supabase.from('profiles').update({ status: text, avatar_url: color }).eq('id', USER_ID);
+            fetchGroup();
+        };
+
+        // Вывод списка всех студентов
+        async function fetchGroup() {
+            const { data, error } = await supabase.from('profiles').select('*').order('username', { ascending: true });
+            if (error) return console.error(error);
+
+            const list = document.getElementById('grouplist');
+            list.innerHTML = data.map(user => `
+                <div class="user-item">
+                    <div class="status-dot" style="background-color: ${user.avatar_url || '#ccc'}"></div>
+                    <div class="user-info">
+                        <span class="user-name">${user.username}</span>
+                        <span class="user-status">${user.status || 'Нет статуса'}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            const me = data.find(u => u.id === USER_ID);
+            if (me) {
+                document.getElementById('myinfo').innerText = `Вы вошли как: ${me.username}`;
+            }
+        }
+
+        // Включение Realtime (обновление "на лету")
+        supabase.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+            fetchGroup();
+        }).subscribe();
+
+        // Запуск проверки при загрузке
+        checkUser();
+    </script>
+</body>
+</html>
