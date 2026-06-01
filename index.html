@@ -120,9 +120,9 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        // ИСПРАВЛЕННЫЙ АДРЕС БАЗЫ
-        const URL = 'https://wxtbbyfscvbeidvbyhmv.supabase.co';
-        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dGJieWZzY3ZiZWlkdmJ5aG12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
+        // ИСПРАВИЛИ БУКВУ НА КОНЦЕ С m НА u
+        const URL = 'https://wxtbbyfscvbeidvbyhmu.supabase.co';
+        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dGJieWZzY3ZiZWlkdmJ5aG11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
         const supabase = createClient(URL, KEY);
 
         let USER_ID = null;
