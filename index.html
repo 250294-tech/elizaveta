@@ -30,21 +30,20 @@
 
         const supabase = createClient(URL, KEY);
 
-        window.changeStatus = async (text, color) => {
+        // Публикуем функцию в глобальную видимость оконного интерфейса
+        window.changeStatus = async function(text, color) {
             const { error } = await supabase
                 .from('profiles')
-                .update({ status: text, avatar_url: color })
+                .update({ status: text }) // Изменяем статус
                 .eq('id', MY_ID);
 
             if (error) {
-                alert("Ошибка! Проверь RLS в Supabase (должен быть public).");
+                alert("Ошибка! Проверь RLS в Supabase.");
                 console.error(error);
             } else {
-                alert("Статус изменен на: " + text);
+                alert("Статус успешно изменен на: " + text);
             }
         };
     </script>
 </body>
 </html>
-    
-  
