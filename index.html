@@ -93,7 +93,7 @@
         
         <div class="card" id="loginCard">
             <h2>Вход в систему</h2>
-            <p class="info-text">Для управления своим статусом авторизуйтесь через ваш Google аккаунт.</p>
+            <p class="info-text">Авторизуйтесь через ваш Google аккаунт.</p>
             <button class="btn-google" onclick="loginWithGoogle()">
                 🌐 Войти через Google
             </button>
@@ -107,7 +107,7 @@
                 <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#f1c40f')">☕ Кофе</button>
                 <button class="btn-game" onclick="changeStatus('🎮 В игре', '#3498db')">🎮 В игре</button>
             </div>
-            <button class="btn-logout" onclick="logout()">Выйти</button>
+            <button class="btn-logout" onclick="logout()">Выйти из аккаунта</button>
         </div>
 
         <div class="card hidden" id="monitorCard">
@@ -120,7 +120,7 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        // ТЕПЕРЬ ТУТ СТРОГО ПРАВИЛЬНЫЙ АДРЕС БЕЗ ЛИШНИХ БУКВ!
+        // Исправленный адрес без лишних букв by
         const URL = 'https://wxtbbyfscvbeidvhmv.supabase.co';
         const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dGJieWZzY3ZiZWlkdmhtdiIsInJvbGU6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
         const supabase = createClient(URL, KEY);
