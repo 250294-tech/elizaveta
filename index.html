@@ -2,48 +2,110 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Монитор статусов</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f4f4f9; }
-        button { padding: 15px 25px; margin: 10px; font-size: 18px; cursor: pointer; border: none; border-radius: 8px; color: white; }
-        .btn-study { background: #2ecc71; }
-        .btn-coffee { background: #f1c40f; color: #333; }
-        .btn-game { background: #1abc9c; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        h2 { margin-top: 0; margin-bottom: 8px; font-size: 1.2rem; color: #1d1d1f; }
+        .info-text { color: #86868b; font-size: 0.9rem; margin-bottom: 16px; }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        button {
+            padding: 12px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        .btn-study { background-color: #2ecc71; }
+        .btn-coffee { background-color: #f1c40f; color: #34495e; }
+        .btn-game { background-color: #3498db; grid-column: span 2; }
+        
+        .group-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f5f5f7;
+        }
+        .user-item:last-child { border-bottom: none; }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ccc;
+            flex-shrink: 0;
+        }
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .user-name { font-weight: 600; color: #1d1d1f; font-size: 0.95rem; }
+        .user-status { color: #86868b; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <h1>Мой статус</h1>
-    <p>Нажми кнопку, чтобы обновить статус в базе:</p>
-    
-    <button class="btn-study" onclick="changeStatus('📚 Учусь', '#2ecc71')">📚 Учусь</button>
-    <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#f1c40f')">☕ Кофе</button>
-    <button class="btn-game" onclick="changeStatus('🎮 Играю', '#1abc9c')">🎮 Играю</button>
+    <div class="container">
+        <div class="card">
+            <h2>Мой профиль</h2>
+            <div class="info-text" id="myinfo">Вы зашли как: Загрузка...</div>
+            <div class="btn-grid">
+                <button class="btn-study" onclick="changeStatus('📚 Учусь', '#2ecc71')">📚 Учусь</button>
+                <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#f1c40f')">☕ Кофе</button>
+                <button class="btn-game" onclick="changeStatus('🎮 В игре', '#3498db')">🎮 В игре</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Монитор группы</h2>
+            <div class="group-list" id="grouplist">
+                Загрузка списка группы...
+            </div>
+        </div>
+    </div>
 
     <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        // ТВОИ ДАННЫЕ
-        const URL = "https://jocrggurfkljvpsgsdem.supabase.co"; 
-        const KEY = "sb_publishable_2yps3NEaSQEVM4JYmi7xvw_F9avZgA2"; 
-        const MY_ID = "f858c516-eb14-4d69-a945-cc2e27fe2a5b"; 
-
+        // Конфигурация подключения к твоему проекту
+        const URL = 'https://wxtbbyfscvbeidvbyhmv.supabase.co';
+        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dGJieWZzY3ZiZWlkdmJ5aG12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
         const supabase = createClient(URL, KEY);
 
-        // Публикуем функцию в глобальную видимость оконного интерфейса
-        window.changeStatus = async function(text, color) {
-            const { error } = await supabase
-                .from('profiles')
-                .update({ status: text }) // Изменяем статус
-                .eq('id', MY_ID);
-
-            if (error) {
-                alert("Ошибка! Проверь RLS в Supabase.");
-                console.error(error);
-            } else {
-                alert("Статус успешно изменен на: " + text);
-            }
-        };
-    </script>
-</body>
-</html>
+        // Твой личный ID из таблицы profiles
+        const MY_ID = 'a4ddd46e-13bf-4e3e
