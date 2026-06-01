@@ -137,7 +137,6 @@
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
         const URL = 'https://jocrggurfkljvpsgsdem.supabase.co';
-        // Наш надежный публичный anon ключ
         const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
         
         const supabase = createClient(URL, KEY);
@@ -148,20 +147,19 @@
         window.loginWithGoogle = async () => {
             await supabase.auth.signInWithOAuth({
                 provider: 'google',
-                options: { redirectTo: 'https://250294-tech.github.io/elizaveta/' }
+                options: { redirectTo: window.location.origin + window.location.pathname }
             });
         };
 
         window.logout = async () => {
             await supabase.auth.signOut();
-            window.location.href = 'https://250294-tech.github.io/elizaveta/';
+            window.location.href = window.location.origin + window.location.pathname;
         };
 
         async function checkUser() {
             const { data: { session } } = await supabase.auth.getSession();
             
             if (session?.user) {
-                // Запоминаем ID, под которым ты вошла через Google
                 USER_ID = session.user.id;
                 USER_NAME = session.user.user_metadata?.full_name || 'Лиза';
                 
@@ -181,24 +179,17 @@
         async function ensureProfileExists() {
             if (!USER_ID) return;
             
-            // Ищем, есть ли в базе запись с текущим Google ID или запись с именем "Лиза"
+            // Проверяем, есть ли запись с текущим Google ID
             const { data: byId } = await supabase.from('profiles').select('*').eq('id', USER_ID).maybeSingle();
             
             if (!byId) {
-                const { data: byName } = await supabase.from('profiles').select('*').eq('username', 'Лиза').maybeSingle();
+                // Если записи с новым ID нет, но осталась старая "Лиза", удаляем её, чтобы не плодить дубликаты
+                await supabase.from('profiles').delete().eq('username', 'Лиза');
                 
-                if (byName) {
-                    // Если нашли старую запись "Лиза", просто обновляем её ID на новый рабочий Google ID!
-                    await supabase.from('profiles').delete().eq('username', 'Лиза');
-                }
-                
-                // Создаем чистую, актуальную запись, привязанную к твоему Google аккаунту
-                await supabase.from('profiles').upsert({ 
-                    id: USER_ID, 
-                    username: USER_NAME, 
-                    status: 'В сети', 
-                    avatar_url: '#10b981' 
-                });
+                // Пересоздаем запись под твоим реальным авторизованным ID
+                await supabase.from('profiles').insert([
+                    { id: USER_ID, username: USER_NAME, status: 'В сети', avatar_url: '#10b981' }
+                ]);
             }
         }
 
@@ -234,6 +225,7 @@
             }
         }
 
+        // Подписка на живые обновления
         supabase.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
             fetchGroup();
         }).subscribe();
