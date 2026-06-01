@@ -38,7 +38,16 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
+            padding: 12px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
         }
+        .btn-google:hover { opacity: 0.9; }
+        
         .btn-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -93,7 +102,7 @@
         
         <div class="card" id="loginCard">
             <h2>Вход в систему</h2>
-            <p class="info-text">Авторизуйтесь через ваш Google аккаунт.</p>
+            <p class="info-text">Для управления своим статусом авторизуйтесь через ваш Google аккаунт.</p>
             <button class="btn-google" onclick="loginWithGoogle()">
                 🌐 Войти через Google
             </button>
@@ -107,7 +116,7 @@
                 <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#f1c40f')">☕ Кофе</button>
                 <button class="btn-game" onclick="changeStatus('🎮 В игре', '#3498db')">🎮 В игре</button>
             </div>
-            <button class="btn-logout" onclick="logout()">Выйти из аккаунта</button>
+            <button class="btn-logout" onclick="logout()">Выйти</button>
         </div>
 
         <div class="card hidden" id="monitorCard">
@@ -120,9 +129,12 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        // Исправленный адрес без лишних букв by
-        const URL = 'https://wxtbbyfscvbeidvhmv.supabase.co';
-        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dGJieWZzY3ZiZWlkdmhtdiIsInJvbGU6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
+        // ТВОЙ НАСТОЯЩИЙ АДРЕС ПРОЕКТА!
+        const URL = 'https://jocrggurfkljvpsgsdem.supabase.co';
+        
+        // Сюда нам нужен твой новый КЛЮЧ anon public
+        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
+        
         const supabase = createClient(URL, KEY);
 
         let USER_ID = null;
@@ -170,7 +182,7 @@
                 <div class="user-item">
                     <div class="status-dot" style="background-color: ${user.avatar_url || '#ccc'}"></div>
                     <div class="user-info">
-                        <span class="user-name">${user.username}</span>
+                        <span class="user-name">${user.username || 'Без имени'}</span>
                         <span class="user-status">${user.status || 'Нет статуса'}</span>
                     </div>
                 </div>
@@ -178,7 +190,7 @@
 
             const me = data.find(u => u.id === USER_ID);
             if (me) {
-                document.getElementById('myinfo').innerText = `Вы вошли как: ${me.username}`;
+                document.getElementById('myinfo').innerText = `Вы вошли как: ${me.username || 'Пользователь Google'}`;
             }
         }
 
