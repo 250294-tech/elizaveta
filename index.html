@@ -30,7 +30,6 @@
         h2 { margin-top: 0; margin-bottom: 8px; font-size: 1.2rem; color: #1d1d1f; }
         .info-text { color: #86868b; font-size: 0.9rem; margin-bottom: 16px; }
         
-        /* Кнопка Google */
         .btn-google {
             background-color: #4285F4;
             color: white;
@@ -85,7 +84,6 @@
         .user-name { font-weight: 600; color: #1d1d1f; font-size: 0.95rem; }
         .user-status { color: #86868b; font-size: 0.8rem; }
         
-        /* Класс для скрытия */
         .hidden { display: none !important; }
     </style>
 </head>
@@ -122,13 +120,13 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
+        // ИСПРАВЛЕННЫЙ АДРЕС БАЗЫ
         const URL = 'https://wxtbbyfscvbeidvbyhmv.supabase.co';
         const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dGJieWZzY3ZiZWlkdmJ5aG12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
         const supabase = createClient(URL, KEY);
 
         let USER_ID = null;
 
-        // Вход через Google
         window.loginWithGoogle = async () => {
             await supabase.auth.signInWithOAuth({
                 provider: 'google',
@@ -136,13 +134,11 @@
             });
         };
 
-        // Выход
         window.logout = async () => {
             await supabase.auth.signOut();
             window.location.reload();
         };
 
-        // Проверка авторизации
         async function checkUser() {
             const { data: { user } } = await supabase.auth.getUser();
             
@@ -159,14 +155,12 @@
             }
         }
 
-        // Изменение статуса
         window.changeStatus = async (text, color) => {
             if (!USER_ID) return;
             await supabase.from('profiles').update({ status: text, avatar_url: color }).eq('id', USER_ID);
             fetchGroup();
         };
 
-        // Сбор списка группы
         async function fetchGroup() {
             const { data, error } = await supabase.from('profiles').select('*').order('username', { ascending: true });
             if (error) return console.error(error);
@@ -188,7 +182,6 @@
             }
         }
 
-        // Обновления в реальном времени
         supabase.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
             fetchGroup();
         }).subscribe();
