@@ -3,17 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Монитор статусов группы</title>
+    <title>Монитор статусов</title>
     <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151d30;
+            --text-main: #f1f5f9;
+            --text-muted: #64748b;
+            --accent-google: #4285F4;
+            --border-color: #1e293b;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f5f5f7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px 20px;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
             margin: 0;
+            box-sizing: border-box;
         }
+
         .container {
             max-width: 400px;
             width: 100%;
@@ -21,52 +35,101 @@
             flex-direction: column;
             gap: 20px;
         }
+
         .card {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background: var(--card-bg);
+            padding: 30px 24px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+            text-align: center;
         }
-        h2 { margin-top: 0; margin-bottom: 8px; font-size: 1.2rem; color: #1d1d1f; }
-        .info-text { color: #86868b; font-size: 0.9rem; margin-bottom: 16px; }
+
+        h2 { 
+            margin-top: 0; 
+            margin-bottom: 12px; 
+            font-size: 1.5rem; 
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .info-text { 
+            color: var(--text-muted); 
+            font-size: 0.95rem; 
+            margin-bottom: 26px; 
+            line-height: 1.5;
+        }
         
         .btn-google {
-            background-color: #4285F4;
+            background-color: var(--accent-google);
             color: white;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
-            padding: 12px;
-            font-size: 0.9rem;
+            gap: 12px;
+            padding: 16px;
+            font-size: 1rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 14px;
             cursor: pointer;
             font-weight: 600;
-            transition: opacity 0.2s;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.25);
         }
-        .btn-google:hover { opacity: 0.9; }
+
+        .btn-google:hover { 
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
+        }
         
         .btn-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 12px;
         }
-        button {
-            padding: 12px;
-            font-size: 0.9rem;
+
+        button.status-btn {
+            padding: 14px;
+            font-size: 0.95rem;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
-            transition: opacity 0.2s;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        button:hover { opacity: 0.9; }
-        .btn-study { background-color: #2ecc71; color: white; }
-        .btn-coffee { background-color: #f1c40f; color: #34495e; }
-        .btn-game { background-color: #3498db; color: white; grid-column: span 2; }
-        .btn-logout { background-color: #e74c3c; color: white; width: 100%; margin-top: 15px; }
+
+        button.status-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .btn-study { background-color: #10b981; color: white; }
+        .btn-coffee { background-color: #f59e0b; color: #151d30; }
+        .btn-game { background-color: #3b82f6; color: white; grid-column: span 2; }
+        
+        .btn-logout { 
+            background-color: transparent; 
+            color: #94a3b8; 
+            width: 100%; 
+            margin-top: 24px; 
+            padding: 12px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
         
         .group-list {
             display: flex;
@@ -74,24 +137,29 @@
             gap: 12px;
             margin-top: 10px;
         }
+
         .user-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid #f5f5f7;
+            gap: 14px;
+            padding: 14px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.04);
+            text-align: left;
         }
-        .user-item:last-child { border-bottom: none; }
+
         .status-dot {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: #ccc;
+            background-color: #475569;
             flex-shrink: 0;
         }
-        .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: 600; color: #1d1d1f; font-size: 0.95rem; }
-        .user-status { color: #86868b; font-size: 0.8rem; }
+
+        .user-info { display: flex; flex-direction: column; gap: 2px; }
+        .user-name { font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
+        .user-status { color: #94a3b8; font-size: 0.85rem; }
         
         .hidden { display: none !important; }
     </style>
@@ -112,16 +180,16 @@
             <h2>Мой профиль</h2>
             <div class="info-text" id="myinfo">Загрузка профиля...</div>
             <div class="btn-grid">
-                <button class="btn-study" onclick="changeStatus('📚 Учусь', '#2ecc71')">📚 Учусь</button>
-                <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#f1c40f')">☕ Кофе</button>
-                <button class="btn-game" onclick="changeStatus('🎮 В игре', '#3498db')">🎮 В игре</button>
+                <button class="status-btn btn-study" onclick="changeStatus('📚 Учусь', '#10b981')">📚 Учусь</button>
+                <button class="status-btn btn-coffee" onclick="changeStatus('☕ Кофе', '#f59e0b')">☕ Кофе</button>
+                <button class="status-btn btn-game" onclick="changeStatus('🎮 В игре', '#3b82f6')">🎮 В игре</button>
             </div>
-            <button class="btn-logout" onclick="logout()">Выйти</button>
+            <button class="btn-logout" onclick="logout()">Выйти из системы</button>
         </div>
 
         <div class="card hidden" id="monitorCard">
-            <h2>Монитор группы</h2>
-            <div class="group-list" id="grouplist">Загрузка списка...</div>
+            <h2 style="text-align: left; margin-bottom: 16px;">Монитор группы</h2>
+            <div class="group-list" id="grouplist">Загрузка списка участников...</div>
         </div>
         
     </div>
@@ -131,14 +199,17 @@
 
         const URL = 'https://jocrggurfkljvpsgsdem.supabase.co';
         
-        // Извлекаем токен напрямую из адресной строки, если ключ обрезался в коде
+        // Автоматически вытаскиваем токен авторизации из ссылки
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const backupKey = hashParams.get('access_token');
+        const tokenFromUrl = hashParams.get('access_token');
         
-        // Базовый ключ (если это не редирект)
-        const baseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
+        // Наш дефолтный ключ для первичного отображения базы
+        const defaultKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
         
-        const supabase = createClient(URL, baseKey);
+        // Если пользователь только что вошел — используем его токен как ключ, иначе стандартный anon
+        const currentKey = tokenFromUrl || defaultKey;
+        
+        const supabase = createClient(URL, currentKey);
         let USER_ID = null;
         let USER_NAME = 'Пользователь';
 
@@ -155,36 +226,49 @@
         };
 
         async function checkUser() {
-            // Проверяем сессию через стандартный метод сессии
-            const { data: { session } } = await supabase.auth.getSession();
-            const user = session?.user;
-            
-            if (user) {
-                USER_ID = user.id;
-                USER_NAME = user.user_metadata?.full_name || user.email.split('@')[0];
-                
-                document.getElementById('loginCard').classList.add('hidden');
-                document.getElementById('profileCard').classList.remove('hidden');
-                document.getElementById('monitorCard').classList.remove('hidden');
-                
-                // Проверяем, есть ли этот пользователь в таблице profiles, если нет - создаем автоматическую запись
-                await ensureProfileExists();
-                fetchGroup();
-            } else {
-                document.getElementById('loginCard').classList.remove('hidden');
-                document.getElementById('profileCard').classList.add('hidden');
-                document.getElementById('monitorCard').classList.add('hidden');
+            // Если в ссылке есть токен — принудительно ставим сессию
+            if (tokenFromUrl) {
+                const { data: { user } } = await supabase.auth.getUser(tokenFromUrl);
+                if (user) {
+                    initUser(user);
+                    return;
+                }
             }
+
+            // Обычная проверка сессии
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                initUser(session.user);
+            } else {
+                showLogin();
+            }
+        }
+
+        async function initUser(user) {
+            USER_ID = user.id;
+            USER_NAME = user.user_metadata?.full_name || user.email.split('@')[0];
+            
+            document.getElementById('loginCard').classList.add('hidden');
+            document.getElementById('profileCard').classList.remove('hidden');
+            document.getElementById('monitorCard').classList.remove('hidden');
+            
+            await ensureProfileExists();
+            fetchGroup();
+        }
+
+        function showLogin() {
+            document.getElementById('loginCard').classList.remove('hidden');
+            document.getElementById('profileCard').classList.add('hidden');
+            document.getElementById('monitorCard').classList.add('hidden');
         }
 
         async function ensureProfileExists() {
             if (!USER_ID) return;
             const { data } = await supabase.from('profiles').select('id').eq('id', USER_ID).maybeSingle();
             
-            // Если записи с таким Google ID еще нет в таблице - создаем её автоматически
             if (!data) {
                 await supabase.from('profiles').insert([
-                    { id: USER_ID, username: USER_NAME, status: 'Только вошел', avatar_url: '#ccc' }
+                    { id: USER_ID, username: USER_NAME, status: 'Только вошел', avatar_url: '#64748b' }
                 ]);
             }
         }
@@ -196,13 +280,15 @@
         };
 
         async function fetchGroup() {
-            const { data, error } = await supabase.from('profiles').select('*').order('username', { ascending: true });
+            // Для чтения списка используем чистый клиент без ограничений токена
+            const publicClient = createClient(URL, defaultKey);
+            const { data, error } = await publicClient.from('profiles').select('*').order('username', { ascending: true });
             if (error) return console.error(error);
 
             const list = document.getElementById('grouplist');
             list.innerHTML = data.map(user => `
                 <div class="user-item">
-                    <div class="status-dot" style="background-color: ${user.avatar_url || '#ccc'}"></div>
+                    <div class="status-dot" style="background-color: ${user.avatar_url || '#64748b'}; box-shadow: 0 0 10px ${user.avatar_url || '#64748b'}b3;"></div>
                     <div class="user-info">
                         <span class="user-name">${user.username || 'Без имени'}</span>
                         <span class="user-status">${user.status || 'Нет статуса'}</span>
