@@ -129,9 +129,10 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        // Твои точные данные из скриншотов
         const URL = 'https://jocrggurfkljvpsgsdem.supabase.co';
-        const KEY = 'sb_publishable_2yps3NEaSQEVM4JYmi7xvw_F9avZ_d1tM1S-Xv_3Z9S6IsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
+        
+        // СЮДА ВСТАВЬ СВОЙ ПОЛНЫЙ КЛЮЧ (удали текст внутри кавычек и нажми Ctrl+V)
+        const KEY = 'ВСТАВЬ_СЮДА_ПОЛНЫЙ_КЛЮЧ_БЕЗ_ТРОЕТОЧИЙ'; 
         
         const supabase = createClient(URL, KEY);
         let USER_ID = null;
@@ -149,19 +150,28 @@
         };
 
         async function checkUser() {
-            const { data: { user } } = await supabase.auth.getUser();
-            
-            if (user) {
-                USER_ID = user.id;
-                document.getElementById('loginCard').classList.add('hidden');
-                document.getElementById('profileCard').classList.remove('hidden');
-                document.getElementById('monitorCard').classList.remove('hidden');
-                fetchGroup();
-            } else {
-                document.getElementById('loginCard').classList.remove('hidden');
-                document.getElementById('profileCard').classList.add('hidden');
-                document.getElementById('monitorCard').classList.add('hidden');
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+                if (error) throw error;
+                
+                if (user) {
+                    USER_ID = user.id;
+                    document.getElementById('loginCard').classList.add('hidden');
+                    document.getElementById('profileCard').classList.remove('hidden');
+                    document.getElementById('monitorCard').classList.remove('hidden');
+                    fetchGroup();
+                } else {
+                    showLogin();
+                }
+            } catch (e) {
+                showLogin();
             }
+        }
+
+        function showLogin() {
+            document.getElementById('loginCard').classList.remove('hidden');
+            document.getElementById('profileCard').classList.add('hidden');
+            document.getElementById('monitorCard').classList.add('hidden');
         }
 
         window.changeStatus = async (text, color) => {
