@@ -3,169 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Практика 4: Монитор времени и статусов</title>
+    <title>REALTIME MONITOR — Статусы группы</title>
     <style>
         :root {
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --accent-primary: #ef4444; /* Кнопка завершить */
-            --accent-pause: #eab308; /* Кнопка перерыв */
-            --accent-exit: #64748b; /* Кнопка выход */
-            --accent-success: #10b981;
-            --border-color: #e2e8f0;
+            --bg-dark: #090d16;
+            --panel-bg: #111827;
+            --card-inner: #1f2937;
+            --neon-green: #10b981;
+            --neon-blue: #3b82f6;
+            --neon-cyan: #06b6d4;
+            --neon-orange: #f59e0b;
+            --text-white: #ffffff;
+            --text-gray: #9ca3af;
+            --border-color: #374151;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background-color: var(--bg-dark);
+            color: var(--text-white);
             margin: 0;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
             box-sizing: border-box;
         }
 
-        .container {
-            max-width: 420px;
+        .phone-mockup {
+            max-width: 430px;
             width: 100%;
+            background: var(--panel-bg);
+            border-radius: 32px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
+        .app-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #6366f1;
+            font-weight: 800;
+            text-align: left;
+            margin-bottom: -8px;
+        }
+        .app-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            text-align: left;
+        }
+        .app-title span { color: #6366f1; }
+
+        /* Окно входа (если нет сессии) */
+        .login-box { text-align: center; padding: 40px 10px; }
+        .info-text { color: var(--text-gray); font-size: 0.95rem; margin-bottom: 24px; line-height: 1.5; }
+        
+        .btn-google {
+            background-color: #4285F4;
+            color: white;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+        .btn-google:hover { transform: translateY(-2px); }
+
+        /* Панель профиля и таймера */
+        .session-card {
+            background: var(--card-inner);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.03);
             text-align: center;
         }
-
-        /* Окно входа */
-        .login-input {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: 2px solid var(--border-color);
-            font-size: 1rem;
-            box-sizing: border-box;
-            margin-bottom: 12px;
-            outline: none;
+        .user-full-name { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; }
+        
+        .big-timer {
+            font-size: 2.2rem; font-weight: 900; color: #10b981;
+            display: flex; align-items: center; justify-content: center; gap: 10px; margin: 14px 0;
         }
-        .login-input:focus { border-color: #3b82f6; }
-        .btn-enter {
-            background: #3b82f6; color: white; width: 100%; padding: 14px;
-            border: none; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer;
+        .sub-status-text {
+            font-size: 0.75rem; text-transform: uppercase; color: var(--neon-orange);
+            letter-spacing: 2px; font-weight: 700; margin-top: -8px; margin-bottom: 16px;
         }
 
-        /* Главный профиль */
-        .user-name-title { font-size: 1.25rem; font-weight: 700; margin: 0 0 16px 0; }
-        .timer-display {
-            font-size: 2rem; font-weight: 700; color: #3b82f6;
-            display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;
+        /* Кнопки управления */
+        .controls-row { display: flex; gap: 10px; }
+        .btn-action {
+            flex: 1; padding: 14px; border: none; border-radius: 12px;
+            font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
         }
-        .timer-icon { width: 28px; height: 28px; }
+        .btn-action.start { background: #10b981; color: white; }
+        .btn-action.stop { background: #ef4444; color: white; }
+        .btn-action.neutral { background: #374151; color: var(--text-gray); border: 1px solid var(--border-color); }
+        .btn-action.neutral:hover { background: #ef4444; color: white; }
 
-        .btn-main {
-            background-color: var(--accent-primary); color: white;
-            width: 100%; padding: 14px; border: none; border-radius: 12px;
-            font-weight: 600; font-size: 1rem; cursor: pointer; margin-bottom: 12px;
+        /* Сетка мини-статистики */
+        .mini-stats-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 8px; margin: 16px 0;
+        }
+        .stat-box {
+            background: rgba(0,0,0,0.2); padding: 10px 4px; border-radius: 10px; text-align: center;
+        }
+        .stat-val { font-size: 1rem; font-weight: 800; color: var(--text-white); }
+        .stat-lbl { font-size: 0.65rem; color: var(--text-gray); text-transform: uppercase; margin-top: 2px; }
+
+        /* Быстрые переключатели статусов */
+        .status-selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+        .selector-btn {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);
+            padding: 12px; border-radius: 12px; color: var(--text-white);
+            font-size: 0.85rem; font-weight: 600; text-align: left; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .selector-btn.active { border-color: #6366f1; background: rgba(99, 102, 241, 0.1); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+        /* Живые счетчики */
+        .live-counters {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+            background: rgba(0,0,0,0.15); padding: 12px; border-radius: 14px; margin: 8px 0;
+        }
+        .counter-item { text-align: center; }
+        .counter-num { font-size: 1.1rem; font-weight: 800; }
+        .counter-num.green { color: var(--neon-green); }
+        .counter-num.orange { color: var(--neon-orange); }
+        .counter-num.gray { color: var(--text-gray); }
+        .counter-lbl { font-size: 0.65rem; color: var(--text-gray); text-transform: uppercase; margin-top: 2px; }
+
+        /* Вкладки */
+        .tabs-row {
+            display: flex; background: rgba(0,0,0,0.2); padding: 4px;
+            border-radius: 12px; border: 1px solid var(--border-color); margin: 8px 0;
+        }
+        .tab-btn {
+            flex: 1; background: transparent; border: none; color: var(--text-gray);
+            padding: 10px 0; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+            border-radius: 8px; transition: all 0.2s;
             display: flex; align-items: center; justify-content: center; gap: 6px;
         }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn-sub {
-            padding: 12px; border: none; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer;
-        }
-        .btn-sub.pause { background-color: var(--accent-pause); color: #1e293b; }
-        .btn-sub.exit { background-color: var(--accent-exit); color: white; }
-
-        /* Заголовки блоков */
-        .block-title {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            font-size: 1.1rem; font-weight: 700; margin: 0 0 16px 0;
+        .tab-btn.active {
+            background: var(--card-inner); color: var(--text-white);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* Список группы */
-        .group-list { display: flex; flex-direction: column; gap: 12px; text-align: left; }
-        .user-item {
+        .tab-content { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+
+        /* Списки студентов */
+        .user-row {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 16px; background: #f8fafc; border-radius: 16px; border: 1px solid #f1f5f9;
+            padding: 12px; background: rgba(255,255,255,0.02);
+            border-radius: 14px; border: 1px solid rgba(255,255,255,0.03);
         }
-        .user-left { display: flex; align-items: center; gap: 12px; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #94a3b8; }
-        .status-dot.online { background: var(--accent-success); box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
-        .status-dot.break { background: var(--accent-pause); box-shadow: 0 0 8px rgba(234, 179, 8, 0.5); }
-        .item-name { font-weight: 600; font-size: 0.95rem; }
-        .user-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-        .item-location { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
-        .item-time { font-size: 0.75rem; color: #3b82f6; font-weight: 600; }
+        .row-left { display: flex; align-items: center; gap: 12px; }
+        .avatar-circle {
+            width: 36px; height: 36px; border-radius: 10px; background: #374151;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem; color: var(--neon-green);
+        }
+        .row-info { display: flex; flex-direction: column; gap: 2px; }
+        .row-name { font-weight: 600; font-size: 0.9rem; }
+        .row-status-text { font-size: 0.75rem; color: var(--text-gray); }
+        .row-right { display: flex; flex-direction: column; align-items: flex-end; }
+        .row-meta-top { font-size: 0.8rem; color: var(--text-gray); display: flex; align-items: center; gap: 4px; }
+        .row-meta-time { font-size: 0.75rem; color: var(--neon-blue); font-weight: 700; }
+
+        /* Достижения */
+        .achievements-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .achievement-card {
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 6px;
+            position: relative; opacity: 0.2; filter: grayscale(1); transition: all 0.3s;
+        }
+        .achievement-card.unlocked {
+            opacity: 1; filter: grayscale(0); border-color: rgba(99, 102, 241, 0.3);
+            background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(99, 102, 241, 0.05));
+        }
+        .ach-icon { font-size: 1.5rem; }
+        .ach-title { font-weight: 700; font-size: 0.85rem; }
+        .ach-desc { font-size: 0.7rem; color: var(--text-gray); line-height: 1.3; }
+        .ach-tag {
+            align-self: flex-start; font-size: 0.6rem; font-weight: 800;
+            padding: 2px 6px; border-radius: 6px; text-transform: uppercase;
+            background: #374151; color: var(--text-gray);
+        }
+        .achievement-card.unlocked .ach-tag { background: rgba(16, 185, 129, 0.15); color: var(--neon-green); }
 
         /* Чат */
-        .chat-box {
-            height: 150px; overflow-y: auto; border: 1px solid #f1f5f9;
-            background: #f8fafc; border-radius: 16px; padding: 12px;
-            text-align: left; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;
+        .chat-area { display: flex; flex-direction: column; gap: 10px; }
+        .chat-messages {
+            height: 120px; overflow-y: auto; background: rgba(0,0,0,0.2);
+            border-radius: 12px; padding: 10px; font-size: 0.85rem;
+            display: flex; flex-direction: column; gap: 6px;
         }
-        .chat-msg { line-height: 1.4; }
-        .msg-author { font-weight: 700; color: #3b82f6; }
-        .chat-input-row { display: flex; gap: 8px; margin-top: 12px; }
-        .chat-input {
-            flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); outline: none;
+        .chat-input-container { display: flex; gap: 8px; }
+        .input-chat {
+            flex: 1; background: var(--card-inner); border: 1px solid var(--border-color);
+            border-radius: 10px; padding: 10px; color: white; outline: none; font-size: 0.85rem;
         }
-        .btn-send {
-            background: var(--accent-success); color: white; border: none;
-            padding: 0 16px; border-radius: 12px; cursor: pointer; font-size: 1.1rem;
-        }
+        .btn-send-chat { background: var(--neon-green); border: none; padding: 0 14px; border-radius: 10px; color: white; cursor: pointer; }
 
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        
-        <div class="card" id="loginCard">
-            <h2 style="margin-top:0; margin-bottom: 8px;">Практика 4</h2>
-            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">Введите ваше имя для старта сессии учебного мониторинга</p>
-            <input type="text" class="login-input" id="usernameInput" placeholder="Ваше имя (например, Елизавета)" value="Елизавета">
-            <button class="btn-enter" onclick="enterApp()">Войти в систему</button>
+    <div class="phone-mockup">
+        <div class="app-header">REALTIME MONITOR</div>
+        <div class="app-title">Статусы <span>группы</span></div>
+
+        <div class="login-box" id="loginBlock">
+            <p class="info-text">Для управления своим статусом, просмотра рейтинга и достижений авторизуйтесь через Google.</p>
+            <button class="btn-google" onclick="loginWithGoogle()">
+                🌐 Войти через Google
+            </button>
         </div>
 
-        <div class="card hidden" id="sessionCard">
-            <h2 class="user-name-title" id="profileName">Дүйсенбек Алмас Әлфарабиұлы</h2>
-            <div class="timer-display">
-                <span class="timer-icon">⏱️</span>
-                <span id="timerText">00 ч 00м 00с</span>
-            </div>
-            <button class="btn-main" onclick="changeState('offline')">⛔ Завершить сессию</button>
-            <div class="btn-grid">
-                <button class="btn-sub pause" onclick="changeState('break')">☕ Перерыв</button>
-                <button class="btn-sub exit" onclick="logout()">Выход</button>
-            </div>
-        </div>
-
-        <div class="card hidden" id="monitorCard">
-            <h3 class="block-title">👥 Монитор группы</h3>
-            <div class="group-list" id="groupListContainer">
+        <div class="hidden" id="mainAppBlock">
+            
+            <div class="session-card">
+                <div class="user-full-name" id="myProfileName">Синхронизация профиля...</div>
+                
+                <div class="big-timer">
+                    <span id="sessionTimerText">0с</span>
                 </div>
-        </div>
+                <div class="sub-status-text" id="subStatusLabel">В СЕТИ</div>
 
-        <div class="card hidden" id="chatCard">
-            <h3 class="block-title">💬 Общий чат</h3>
-            <div class="chat-box" id="chatBox">
+                <div class="controls-row">
+                    <button class="btn-action start hidden" id="resumeBtn" onclick="setStatus('В сети')">Продолжить</button>
+                    <button class="btn-action stop" id="stopBtn" onclick="pauseSession()">Завершить</button>
+                    <button class="btn-action neutral" onclick="logoutApp()">Выйти</button>
                 </div>
-            <div class="chat-input-row">
-                <input type="text" class="chat-input" id="chatInputField" placeholder="Сообщение..." onkeydown="if(event.key==='Enter') sendMsg()">
-                <button class="btn-send" onclick="sendMsg()">➤</button>
-            </div>
-        </div>
 
+                <div class="mini-stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-val" id="statSecs">0с</div>
+                        <div class="stat-lbl">Учеба</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val" id="statSessions">1</div>
+                        <div class="stat-lbl">Сессий</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val" id="statMsgs">0</div>
+                        <div class="stat-lbl">Сообщ.</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val" id="statAchi">0</div>
+                        <div class="stat-lbl">Достиж.</div>
+                    </div>
+                </div>
+
+                <div class="status-selectors">
+                    <button class="selector-btn active" id="statusOnline" onclick="setStatus('В сети')">
+                        <span class="dot" style="background: var(--neon-green)"></span> В сети
+                    </button>
+                    <button class="selector-btn" id="statusAway" onclick="setStatus('Отошёл')">
+                        <span class="dot" style="background: var(--neon-orange)"></span> Отошёл
+                    </button>
+                    <button class="selector-btn" id="statusBusy" onclick="setStatus('Занят')">
+                        <span class="dot" style="background: #ef4444"></span> Занят
+                    </button>
+                    <button class="selector-btn" id="statusDND" onclick="setStatus('Не беспокоить')">
+                        <span class="dot" style="background: #9ca3af"></span> Не бесп.
+                    </button>
+                </div>
+            </div>
+
+            <div class="live-counters">
+                <div class="counter-item">
+                    <div class="counter-num green" id="countLearn">0</div>
+                    <div class="counter-lbl">Учатся</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-num orange" id="countPause">0</div>
+                    <div class="counter-lbl">Перерыв</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-num gray" id="countOffline">0</div>
+                    <div class="counter-lbl">Офлайн</div>
+                </div>
+            </div>
+
+            <div class="tabs-row">
+                <button class="tab-btn active" id="tabUsers" onclick="switchTab('users')">👥 Участники</button>
+                <button class="tab-btn" id="tabRank" onclick="switchTab('rank')">🏆 Рейтинг</button>
+                <button class="tab-btn" id="tabAch" onclick="switchTab('ach')">🏅 Достижения</button>
+            </div>
+
+            <div class="tab-content" id="tabContentContainer"></div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 16px 0;">
+
+            <div class="chat-area">
+                <div class="chat-messages" id="chatWindow">
+                    <div><span style="color: var(--neon-cyan)">Система:</span> Чат активен. Отправьте 3 сообщения для ачивки!</div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" class="input-chat" id="chatInp" placeholder="Сообщение..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                    <button class="btn-send-chat" onclick="sendChatMessage()">➤</button>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <script type="module">
@@ -173,137 +329,297 @@
 
         const URL = 'https://jocrggurfkljvpsgsdem.supabase.co';
         const KEY = 'sb_publishable_2yps3NEaSQEVM4JYmi7xvw_F9avZshXwYfAbe7mU7W1ZgO72S68vJofqI80m_7Vb8dKy2D696SgXg9w3';
-        const supabase = createClient(URL, KEY);
+        
+        const supabase = createClient(URL, KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        });
+        
+        let USER_ID = null;
+        let USER_NAME = 'Лиза';
+        let elapsedSeconds = parseInt(localStorage.getItem('neo_seconds') || '0', 10);
+        let msgCounter = parseInt(localStorage.getItem('neo_msg_count') || '0', 10);
+        let totalSessionsCount = parseInt(localStorage.getItem('neo_sessions') || '1', 10);
+        
+        let currentStatus = 'В сети';
+        let currentTab = 'users'; 
+        let timerId = null;
+        
+        const REDIRECT_URL = 'https://250294-tech.github.io/elizaveta/';
 
-        let CURRENT_USER = localStorage.getItem('study_user') || null;
-        let secondsPassed = parseInt(localStorage.getItem('study_seconds') || '0', 10);
-        let timerInterval = null;
-        let currentStatus = 'online'; // online, break, offline
-
-        window.enterApp = () => {
-            const input = document.getElementById('usernameInput').value.trim();
-            if(!input) return alert('Введите имя!');
-            CURRENT_USER = input;
-            localStorage.setItem('study_user', CURRENT_USER);
-            initSession();
+        window.loginWithGoogle = async () => {
+            await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: REDIRECT_URL }
+            });
         };
 
-        window.logout = async () => {
-            clearInterval(timerInterval);
-            if(CURRENT_USER) {
-                await supabase.from('profiles').delete().eq('username', CURRENT_USER);
+        window.logoutApp = async () => {
+            clearInterval(timerId);
+            if(USER_ID) {
+                await supabase.from('profiles').delete().eq('id', USER_ID);
             }
             localStorage.clear();
-            location.reload();
+            await supabase.auth.signOut();
+            window.location.href = REDIRECT_URL;
         };
 
-        async function initSession() {
-            document.getElementById('loginCard').classList.add('hidden');
-            document.getElementById('sessionCard').classList.remove('hidden');
-            document.getElementById('monitorCard').classList.remove('hidden');
-            document.getElementById('chatCard').classList.remove('hidden');
-            
-            document.getElementById('profileName').innerText = CURRENT_USER;
-            
-            // Фиксируем или обновляем пользователя в БД
-            await supabase.from('profiles').upsert({
-                id: CURRENT_USER, // используем имя как уникальный ключ для простоты
-                username: CURRENT_USER,
-                status: 'online',
-                avatar_url: secondsToText(secondsPassed)
-            }, { onConflict: 'id' });
+        // Отслеживание входа через Google URL Hash
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) {
+                if (window.location.hash.includes('access_token')) {
+                    window.history.replaceState(null, null, window.location.pathname);
+                }
+                setupSession(session.user);
+            } else {
+                showLoginBlock();
+            }
+        });
 
-            startTimer();
-            fetchData();
-            fetchChat();
+        async function setupSession(user) {
+            USER_ID = user.id;
+            USER_NAME = user.user_metadata?.full_name || user.user_metadata?.name || 'Елизавета';
+            
+            document.getElementById('loginBlock').classList.add('hidden');
+            document.getElementById('mainAppBlock').classList.remove('hidden');
+            document.getElementById('myProfileName').innerText = USER_NAME;
+            
+            document.getElementById('sessionTimerText').innerText = `${elapsedSeconds}с`;
+            document.getElementById('statSecs').innerText = `${elapsedSeconds}с`;
+            document.getElementById('statMsgs').innerText = msgCounter;
+            document.getElementById('statSessions').innerText = totalSessionsCount;
+
+            await syncWithDb();
+            startMainTimer();
+            loadGroupData();
+            
+            setInterval(loadGroupData, 3000);
         }
 
-        function startTimer() {
-            clearInterval(timerInterval);
-            timerInterval = setInterval(async () => {
-                if (currentStatus === 'online') {
-                    secondsPassed++;
-                    localStorage.setItem('study_seconds', secondsPassed);
-                    document.getElementById('timerText').innerText = secondsToText(secondsPassed);
+        function showLoginBlock() {
+            document.getElementById('loginBlock').classList.remove('hidden');
+            document.getElementById('mainAppBlock').classList.add('hidden');
+        }
+
+        function startMainTimer() {
+            clearInterval(timerId);
+            timerId = setInterval(async () => {
+                if (currentStatus === 'В сети') {
+                    elapsedSeconds++;
+                    localStorage.setItem('neo_seconds', elapsedSeconds);
                     
-                    // Периодически обновляем время в БД, чтобы группа видела счетчик
-                    if(secondsPassed % 5 === 0) {
-                        await supabase.from('profiles').update({ avatar_url: secondsToText(secondsPassed) }).eq('username', CURRENT_USER);
+                    document.getElementById('sessionTimerText').innerText = `${elapsedSeconds}с`;
+                    document.getElementById('statSecs').innerText = `${elapsedSeconds}с`;
+                    
+                    checkAndRenderAchievements();
+
+                    if (elapsedSeconds % 4 === 0) {
+                        await syncWithDb();
                     }
                 }
             }, 1000);
         }
 
-        window.changeState = async (status) => {
-            currentStatus = status;
-            if(status === 'offline') {
-                clearInterval(timerInterval);
-                secondsPassed = 0;
-                localStorage.setItem('study_seconds', '0');
-                document.getElementById('timerText').innerText = secondsToText(0);
-                await supabase.from('profiles').update({ status: 'offline', avatar_url: secondsToText(0) }).eq('username', CURRENT_USER);
-            } else if(status === 'break') {
-                await supabase.from('profiles').update({ status: 'break' }).eq('username', CURRENT_USER);
+        window.setStatus = async (statusName) => {
+            currentStatus = statusName;
+            document.getElementById('subStatusLabel').innerText = statusName.toUpperCase();
+            
+            document.getElementById('statusOnline').classList.remove('active');
+            document.getElementById('statusAway').classList.remove('active');
+            document.getElementById('statusBusy').classList.remove('active');
+            document.getElementById('statusDND').classList.remove('active');
+
+            if (statusName === 'В сети') {
+                document.getElementById('statusOnline').classList.add('active');
+                document.getElementById('resumeBtn').classList.add('hidden');
+                document.getElementById('stopBtn').classList.remove('hidden');
+                document.getElementById('sessionTimerText').style.color = 'var(--neon-green)';
             } else {
-                await supabase.from('profiles').update({ status: 'online' }).eq('username', CURRENT_USER);
+                if(statusName === 'Отошёл') document.getElementById('statusAway').classList.add('active');
+                if(statusName === 'Занят') document.getElementById('statusBusy').classList.add('active');
+                if(statusName === 'Не беспокоить') document.getElementById('statusDND').classList.add('active');
+                
+                document.getElementById('sessionTimerText').style.color = 'var(--text-gray)';
             }
-            fetchData();
+            await syncWithDb();
+            loadGroupData();
         };
 
-        function secondsToText(sec) {
-            const h = Math.floor(sec / 3600);
-            const m = Math.floor((sec % 3600) / 60);
-            const s = sec % 60;
-            return `${h.toString().padStart(2, '0')}ч ${m.toString().padStart(2, '0')}м ${s.toString().padStart(2, '0')}с`;
+        window.pauseSession = async () => {
+            currentStatus = 'ПЕРЕРЫВ';
+            document.getElementById('subStatusLabel').innerText = 'ПЕРЕРЫВ';
+            document.getElementById('resumeBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            document.getElementById('sessionTimerText').style.color = 'var(--neon-orange)';
+            await syncWithDb();
+            loadGroupData();
+        };
+
+        function getUnlockedBadgesList() {
+            let list = [];
+            list.push('first_step'); 
+            if(elapsedSeconds >= 15) list.push('marathon'); 
+            if(msgCounter >= 3) list.push('activist'); 
+            if(totalSessionsCount >= 2) list.push('return'); 
+            return list;
         }
 
-        async function fetchData() {
-            const { data } = await supabase.from('profiles').select('*').order('username', { ascending: true });
+        async function syncWithDb() {
+            if (!USER_ID) return;
+            const badges = getUnlockedBadgesList();
+            document.getElementById('statAchi').innerText = badges.length;
+
+            await supabase.from('profiles').upsert({
+                id: USER_ID,
+                username: USER_NAME,
+                status: currentStatus,
+                avatar_url: elapsedSeconds.toString(), 
+                status_emoji: badges.join(',') 
+            }, { onConflict: 'id' });
+        }
+
+        async function loadGroupData() {
+            const { data } = await supabase.from('profiles').select('*');
             if(!data) return;
 
-            const container = document.getElementById('groupListContainer');
-            container.innerHTML = data.map(u => `
-                <div class="user-item">
-                    <div class="user-left">
-                        <div class="status-dot ${u.status === 'online' ? 'online' : (u.status === 'break' ? 'break' : '')}"></div>
-                        <span class="item-name">${u.username}</span>
-                    </div>
-                    <div class="user-right">
-                        <span class="item-location">🏠 Дома</span>
-                        <span class="item-time">${u.avatar_url || '00ч 00м 00с'}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function fetchChat() {
-            // Используем ту же таблицу profiles для имитации чата, сохраняя сообщения в статус при отправке,
-            // либо выводим системный лог активности для демонстрации работы чата из ТЗ.
-            const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML = `
-                <div class="chat-msg"><span class="msg-author">Система:</span> Добро пожаловать в чат практики 4!</div>
-                <div class="chat-msg"><span class="msg-author">Алмас:</span> Всем привет, сессию запустил.</div>
-                <div class="chat-msg"><span class="msg-author">Елизавета:</span> Тестирую счетчик времени онлайн.</div>
-            `;
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        window.sendMsg = () => {
-            const inp = document.getElementById('chatInputField');
-            const txt = inp.value.trim();
-            if(!txt) return;
+            const activeCount = data.filter(u => u.status === 'В сети').length;
+            const breakCount = data.filter(u => u.status === 'ПЕРЕРЫВ' || u.status === 'Отошёл').length;
+            const totalOffline = data.filter(u => u.status === 'offline' || u.status === 'Занят' || u.status === 'Не беспокоить').length;
             
-            const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML += `<div class="chat-msg"><span class="msg-author">${CURRENT_USER}:</span> ${txt}</div>`;
-            inp.value = '';
-            chatBox.scrollTop = chatBox.scrollHeight;
+            document.getElementById('countLearn').innerText = activeCount;
+            document.getElementById('countPause').innerText = breakCount;
+            document.getElementById('countOffline').innerText = totalOffline;
+
+            renderTabContent(data);
+        }
+
+        window.switchTab = (tabName) => {
+            currentTab = tabName;
+            document.getElementById('tabUsers').classList.remove('active');
+            document.getElementById('tabRank').classList.remove('active');
+            document.getElementById('tabAch').classList.remove('active');
+
+            if(tabName === 'users') document.getElementById('tabUsers').classList.add('active');
+            if(tabName === 'rank') document.getElementById('tabRank').classList.add('active');
+            if(tabName === 'ach') document.getElementById('tabAch').classList.add('active');
+
+            loadGroupData();
         };
 
-        // Живые обновления каждые 3 секунды для простоты и стабильности без RLS конфликтов
-        setInterval(fetchData, 3000);
+        function renderTabContent(usersList) {
+            const container = document.getElementById('tabContentContainer');
+            if (!container) return;
+            
+            if (currentTab === 'users') {
+                const list = usersList.sort((a,b) => a.username.localeCompare(b.username));
+                container.innerHTML = list.map(u => `
+                    <div class="user-row">
+                        <div class="row-left">
+                            <div class="avatar-circle" style="color: ${u.status === 'В сети' ? 'var(--neon-green)' : 'var(--text-gray)'}">
+                                ${u.username ? u.username[0].toUpperCase() : 'U'}
+                            </div>
+                            <div class="row-info">
+                                <span class="row-name">${u.username || 'Аноним'}</span>
+                                <span class="row-status-text">● ${u.status || 'В сети'}</span>
+                            </div>
+                        </div>
+                        <div class="row-right">
+                            <span class="row-meta-top">🏠 Дома</span>
+                            <span class="row-meta-time">${u.avatar_url || 0}с</span>
+                        </div>
+                    </div>
+                `).join('');
+            } 
+            
+            else if (currentTab === 'rank') {
+                const list = usersList.sort((a, b) => parseInt(b.avatar_url || '0') - parseInt(a.avatar_url || '0'));
+                container.innerHTML = list.map((u, i) => `
+                    <div class="user-row" style="${u.id === USER_ID ? 'border-color: #6366f1;' : ''}">
+                        <div class="row-left">
+                            <span style="font-weight:800; width:24px; color: var(--neon-cyan)">#${i+1}</span>
+                            <div class="row-info">
+                                <span class="row-name">${u.username || 'Аноним'}</span>
+                                <span class="row-status-text">${u.status_emoji ? '🏅 Достижений: ' + u.status_emoji.split(',').length : 'Нет достижений'}</span>
+                            </div>
+                        </div>
+                        <div class="row-right">
+                            <span class="row-meta-time" style="font-size:0.9rem; color: var(--neon-green)">${u.avatar_url || 0} с учёбы</span>
+                        </div>
+                    </div>
+                `).join('');
+            } 
+            
+            else if (currentTab === 'ach') {
+                checkAndRenderAchievements();
+            }
+        }
 
-        if(CURRENT_USER) {
-            initSession();
+        function checkAndRenderAchievements() {
+            if(currentTab !== 'ach') return;
+            const container = document.getElementById('tabContentContainer');
+            const unlocked = getUnlockedBadgesList();
+
+            container.innerHTML = `
+                <div class="achievements-grid">
+                    <div class="achievement-card ${unlocked.includes('first_step') ? 'unlocked' : ''}">
+                        <span class="ach-icon">🌱</span>
+                        <span class="ach-title">Первый шаг</span>
+                        <span class="ach-desc">Провел первую учебную сессию в системе.</span>
+                        <span class="ach-tag">Обычное</span>
+                    </div>
+                    <div class="achievement-card ${unlocked.includes('return') ? 'unlocked' : ''}">
+                        <span class="ach-icon">🔄</span>
+                        <span class="ach-title">Возвращение</span>
+                        <span class="ach-desc">Вернулся к учебе после перерыва.</span>
+                        <span class="ach-tag">Обычное</span>
+                    </div>
+                    <div class="achievement-card ${unlocked.includes('marathon') ? 'unlocked' : ''}">
+                        <span class="ach-icon">⚡</span>
+                        <span class="ach-title">Марафонец</span>
+                        <span class="ach-desc">Накопил более 15 секунд непрерывной учебы.</span>
+                        <span class="ach-tag">Эпическое</span>
+                    </div>
+                    <div class="achievement-card ${unlocked.includes('activist') ? 'unlocked' : ''}">
+                        <span class="ach-icon">📢</span>
+                        <span class="ach-title">Активист</span>
+                        <span class="ach-desc">Написал 3 сообщений в общем чате.</span>
+                        <span class="ach-tag">Редкое</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.sendChatMessage = async () => {
+            const inp = document.getElementById('chatInp');
+            const txt = inp.value.trim();
+            if(!txt) return;
+
+            msgCounter++;
+            localStorage.setItem('neo_msg_count', msgCounter);
+            document.getElementById('statMsgs').innerText = msgCounter;
+
+            const win = document.getElementById('chatWindow');
+            win.innerHTML += `<div><span style="color: var(--neon-green)">${USER_NAME}:</span> ${txt}</div>`;
+            inp.value = '';
+            win.scrollTop = win.scrollHeight;
+
+            if(msgCounter === 3) {
+                totalSessionsCount = 2;
+                localStorage.setItem('neo_sessions', 2);
+                document.getElementById('statSessions').innerText = "2";
+            }
+
+            await syncWithDb();
+            loadGroupData();
+        };
+
+        // Моментальное восстановление сессии без задержек при прямой перезагрузке
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+            setupSession(session.user);
         }
     </script>
 </body>
