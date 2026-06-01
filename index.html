@@ -45,19 +45,8 @@
             text-align: center;
         }
 
-        h2 { 
-            margin-top: 0; 
-            margin-bottom: 12px; 
-            font-size: 1.4rem; 
-            font-weight: 700;
-        }
-
-        .info-text { 
-            color: var(--text-muted); 
-            font-size: 0.95rem; 
-            margin-bottom: 24px; 
-            line-height: 1.5;
-        }
+        h2 { margin-top: 0; margin-bottom: 12px; font-size: 1.4rem; font-weight: 700; }
+        .info-text { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; line-height: 1.5; }
         
         .btn-google {
             background-color: var(--accent-google);
@@ -76,85 +65,37 @@
             transition: all 0.2s ease;
             box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
         }
-
-        .btn-google:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(66, 133, 244, 0.4);
-        }
+        .btn-google:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(66, 133, 244, 0.4); }
         
-        .btn-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
         button.status-btn {
-            padding: 14px;
-            font-size: 0.95rem;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            padding: 14px; font-size: 0.95rem; border: none; border-radius: 12px;
+            cursor: pointer; font-weight: 600; transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-
-        button.status-btn:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-        }
+        button.status-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
         .btn-study { background-color: #10b981; color: white; }
         .btn-coffee { background-color: #f59e0b; color: #1e293b; }
         .btn-game { background-color: #3b82f6; color: white; grid-column: span 2; }
         
         .btn-logout { 
-            background-color: transparent; 
-            color: var(--text-muted); 
-            width: 100%; 
-            margin-top: 24px; 
-            padding: 10px;
-            font-size: 0.85rem;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
+            background-color: transparent; color: var(--text-muted); width: 100%; 
+            margin-top: 24px; padding: 10px; font-size: 0.85rem;
+            border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; transition: all 0.2s;
         }
-        .btn-logout:hover {
-            background: #ef4444;
-            color: white;
-            border-color: #ef4444;
-        }
+        .btn-logout:hover { background: #ef4444; color: white; border-color: #ef4444; }
         
-        .group-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 10px;
-        }
+        .group-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
 
         .user-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px;
-            background: rgba(255,255,255,0.02);
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.05);
-            text-align: left;
+            display: flex; align-items: center; gap: 14px; padding: 14px;
+            background: rgba(255,255,255,0.02); border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.05); text-align: left;
         }
 
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: #475569;
-            flex-shrink: 0;
-        }
-
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; background-color: #475569; flex-shrink: 0; }
         .user-info { display: flex; flex-direction: column; gap: 2px; }
         .user-name { font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
         .user-status { color: #94a3b8; font-size: 0.85rem; }
@@ -196,16 +137,9 @@
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
         const URL = 'https://jocrggurfkljvpsgsdem.supabase.co';
+        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
         
-        // Берем чистый ключ без ограничений
-        const defaultKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
-        
-        // Достаем токен напрямую из хэша ссылки
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const tokenFromUrl = hashParams.get('access_token');
-        
-        const currentKey = tokenFromUrl || defaultKey;
-        const supabase = createClient(URL, currentKey);
+        const supabase = createClient(URL, KEY);
         
         let USER_ID = null;
         let USER_NAME = 'Пользователь';
@@ -223,65 +157,52 @@
         };
 
         async function checkUser() {
-            if (tokenFromUrl) {
-                const { data: { user } } = await supabase.auth.getUser(tokenFromUrl);
-                if (user) { return initUser(user); }
-            }
-
-            const { data: { session } } = await supabase.auth.getSession();
+            // Проверяем сессию при загрузке страницы
+            const { data: { session }, error } = await supabase.auth.getSession();
+            
             if (session?.user) {
-                initUser(session.user);
+                USER_ID = session.user.id;
+                USER_NAME = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
+                
+                document.getElementById('loginCard').classList.add('hidden');
+                document.getElementById('profileCard').classList.remove('hidden');
+                document.getElementById('monitorCard').classList.remove('hidden');
+                
+                await ensureProfileExists();
+                fetchGroup();
             } else {
-                showLogin();
+                document.getElementById('loginCard').classList.remove('hidden');
+                document.getElementById('profileCard').classList.add('hidden');
+                document.getElementById('monitorCard').classList.add('hidden');
             }
-        }
-
-        async function initUser(user) {
-            USER_ID = user.id;
-            USER_NAME = user.user_metadata?.full_name || user.email.split('@')[0];
-            
-            document.getElementById('loginCard').classList.add('hidden');
-            document.getElementById('profileCard').classList.remove('hidden');
-            document.getElementById('monitorCard').classList.remove('hidden');
-            
-            await ensureProfileExists();
-            fetchGroup();
-        }
-
-        function showLogin() {
-            document.getElementById('loginCard').classList.remove('hidden');
-            document.getElementById('profileCard').classList.add('hidden');
-            document.getElementById('monitorCard').classList.add('hidden');
         }
 
         async function ensureProfileExists() {
             if (!USER_ID) return;
-            const publicClient = createClient(URL, defaultKey);
-            const { data } = await publicClient.from('profiles').select('id').eq('id', USER_ID).maybeSingle();
-            
-            if (!data) {
-                await publicClient.from('profiles').insert([
-                    { id: USER_ID, username: USER_NAME, status: 'Только вошел', avatar_url: '#64748b' }
-                ]);
-            }
+            try {
+                const { data } = await supabase.from('profiles').select('id').eq('id', USER_ID).maybeSingle();
+                if (!data) {
+                    await supabase.from('profiles').insert([
+                        { id: USER_ID, username: USER_NAME, status: 'Только вошел', avatar_url: '#475569' }
+                    ]);
+                }
+            } catch (e) { console.error(e); }
         }
 
         window.changeStatus = async (text, color) => {
             if (!USER_ID) return;
-            const publicClient = createClient(URL, defaultKey);
-            await publicClient.from('profiles').upsert({ id: USER_ID, status: text, avatar_url: color, username: USER_NAME });
+            await supabase.from('profiles').upsert({ id: USER_ID, status: text, avatar_url: color, username: USER_NAME });
             fetchGroup();
         };
 
         async function fetchGroup() {
-            const publicClient = createClient(URL, defaultKey);
-            const { data, error } = await publicClient.from('profiles').select('*').order('username', { ascending: true });
+            const { data, error } = await supabase.from('profiles').select('*').order('username', { ascending: true });
             if (error) return console.error(error);
 
             const list = document.getElementById('grouplist');
             list.innerHTML = data.map(user => `
                 <div class="user-item">
-                    <div class="status-dot" style="background-color: ${user.avatar_url || '#64748b'}; box-shadow: 0 0 10px ${user.avatar_url || '#64748b'}b3;"></div>
+                    <div class="status-dot" style="background-color: ${user.avatar_url || '#475569'}; box-shadow: 0 0 10px ${user.avatar_url || '#475569'}b3;"></div>
                     <div class="user-info">
                         <span class="user-name">${user.username || 'Без имени'}</span>
                         <span class="user-status">${user.status || 'Нет статуса'}</span>
@@ -295,6 +216,7 @@
             }
         }
 
+        // Подписка на авто-обновление экрана
         supabase.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
             fetchGroup();
         }).subscribe();
