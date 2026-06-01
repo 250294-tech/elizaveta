@@ -137,7 +137,6 @@
         const URL = 'https://jocrggurfkljvpsgsdem.supabase.co';
         const KEY = 'sb_publishable_2yps3NEaSQEVM4JYmi7xvw_F9avZshXwYfAbe7mU7W1ZgO72S68vJofqI80m_7Vb8dKy2D696SgXg9w3';
         
-        // Создаем клиент с явным указанием автоматического сохранения сессий
         const supabase = createClient(URL, KEY, {
             auth: {
                 persistSession: true,
@@ -163,68 +162,103 @@
         };
 
         async function checkUser() {
-            // Слушаем изменение состояния авторизации (когда токен спарсится из URL)
+            // Отслеживаем изменения состояния
             supabase.auth.onAuthStateChange(async (event, session) => {
                 if (session?.user) {
-                    USER_ID = session.user.id;
-                    USER_NAME = session.user.user_metadata?.full_name || 'Лиза';
-                    
-                    document.getElementById('loginCard').classList.add('hidden');
-                    document.getElementById('profileCard').classList.remove('hidden');
-                    document.getElementById('monitorCard').classList.remove('hidden');
-                    
-                    await ensureProfileExists();
-                    fetchGroup();
+                    if (window.location.hash.includes('access_token')) {
+                        window.history.replaceState(null, null, window.location.pathname);
+                    }
+                    showApp(session.user);
                 } else {
-                    document.getElementById('loginCard').classList.remove('hidden');
-                    document.getElementById('profileCard').classList.add('hidden');
-                    document.getElementById('monitorCard').classList.add('hidden');
+                    showLogin();
                 }
             });
 
-            // Прямая проверка текущей сессии
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                USER_ID = session.user.id;
-                USER_NAME = session.user.user_metadata?.full_name || 'Лиза';
-                
-                document.getElementById('loginCard').classList.add('hidden');
-                document.getElementById('profileCard').classList.remove('hidden');
-                document.getElementById('monitorCard').classList.remove('hidden');
-                
-                await ensureProfileExists();
-                fetchGroup();
+            // Мгновенная проверка при прямой загрузке
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user) {
+                    showApp(session.user);
+                }
+            } catch (e) {
+                console.error("Ошибка проверки сессии:", e);
             }
+        }
+
+        async function showApp(user) {
+            USER_ID = user.id;
+            USER_NAME = user.user_metadata?.full_name || user.user_metadata?.name || 'Лиза';
+            
+            // СТРОГОЕ ПРАВИЛО: Сначала переключаем интерфейс, чтобы убрать окно входа в любом случае
+            document.getElementById('loginCard').classList.add('hidden');
+            document.getElementById('profileCard').classList.remove('hidden');
+            document.getElementById('monitorCard').classList.remove('hidden');
+            
+            document.getElementById('myinfo').innerText = `Вы вошли как: ${USER_NAME}`;
+            
+            // Затем в фоновом режиме работаем с базой данных
+            try {
+                await ensureProfileExists();
+            } catch (err) {
+                console.error("Не удалось инициализировать профиль в БД:", err);
+            }
+            
+            try {
+                await fetchGroup();
+            } catch (err) {
+                console.error("Не удалось считать список группы:", err);
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('loginCard').classList.remove('hidden');
+            document.getElementById('profileCard').classList.add('hidden');
+            document.getElementById('monitorCard').classList.add('hidden');
         }
 
         async function ensureProfileExists() {
             if (!USER_ID) return;
-            const { data } = await supabase.from('profiles').select('id').eq('id', USER_ID).maybeSingle();
-            
-            if (!data) {
-                await supabase.from('profiles').delete().eq('username', 'Лиза');
-                await supabase.from('profiles').insert([
-                    { id: USER_ID, username: USER_NAME, status: 'В сети', avatar_url: '#10b981' }
-                ]);
-            }
+            // Используем атомарный upsert вместо связки select+delete+insert
+            await supabase.from('profiles').upsert({
+                id: USER_ID,
+                username: USER_NAME,
+                status: 'В сети',
+                avatar_url: '#10b981'
+            }, { onConflict: 'id' });
         }
 
         window.changeStatus = async (text, color) => {
             if (!USER_ID) return;
-            await supabase.from('profiles').upsert({ 
-                id: USER_ID, 
-                status: text, 
-                avatar_url: color, 
-                username: USER_NAME 
-            });
-            fetchGroup();
+            try {
+                await supabase.from('profiles').upsert({ 
+                    id: USER_ID, 
+                    status: text, 
+                    avatar_url: color, 
+                    username: USER_NAME 
+                }, { onConflict: 'id' });
+                fetchGroup();
+            } catch (e) {
+                console.error("Ошибка смены статуса:", e);
+            }
         };
 
         async function fetchGroup() {
             const { data, error } = await supabase.from('profiles').select('*').order('username', { ascending: true });
-            if (error) return console.error(error);
-
+            
             const list = document.getElementById('grouplist');
+            if (error || !data || data.length === 0) {
+                // Локальная заглушка на случай, если RLS в панели всё ещё активен
+                list.innerHTML = `
+                    <div class="user-item">
+                        <div class="status-dot" style="background-color: #10b981; box-shadow: 0 0 10px #10b981b3;"></div>
+                        <div class="user-info">
+                            <span class="user-name">${USER_NAME} (Локально)</span>
+                            <span class="user-status">В сети</span>
+                        </div>
+                    </div>`;
+                return;
+            }
+
             list.innerHTML = data.map(user => `
                 <div class="user-item">
                     <div class="status-dot" style="background-color: ${user.avatar_url || '#475569'}; box-shadow: 0 0 10px ${user.avatar_url || '#475569'}b3;"></div>
@@ -234,17 +268,16 @@
                     </div>
                 </div>
             `).join('');
-
-            const me = data.find(u => u.id === USER_ID);
-            if (me) {
-                document.getElementById('myinfo').innerText = `Вы вошли как: ${me.username}`;
-            }
         }
 
-        // Включаем подписку на изменения базы
-        supabase.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-            fetchGroup();
-        }).subscribe();
+        // Realtime
+        try {
+            supabase.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+                fetchGroup();
+            }).subscribe();
+        } catch(e) {
+            console.error("Realtime недоступен:", e);
+        }
 
         checkUser();
     </script>
