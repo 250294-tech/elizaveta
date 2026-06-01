@@ -110,7 +110,7 @@
 
         <div class="card hidden" id="profileCard">
             <h2>Мой профиль</h2>
-            <div class="info-text" id="myinfo">Загрузка...</div>
+            <div class="info-text" id="myinfo">Загрузка профиля...</div>
             <div class="btn-grid">
                 <button class="btn-study" onclick="changeStatus('📚 Учусь', '#2ecc71')">📚 Учусь</button>
                 <button class="btn-coffee" onclick="changeStatus('☕ Кофе', '#f1c40f')">☕ Кофе</button>
@@ -131,11 +131,16 @@
 
         const URL = 'https://jocrggurfkljvpsgsdem.supabase.co';
         
-        // СЮДА ВСТАВЬ СВОЙ ПОЛНЫЙ КЛЮЧ (удали текст внутри кавычек и нажми Ctrl+V)
-        const KEY = 'ВСТАВЬ_СЮДА_ПОЛНЫЙ_КЛЮЧ_БЕЗ_ТРОЕТОЧИЙ'; 
+        // Извлекаем токен напрямую из адресной строки, если ключ обрезался в коде
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const backupKey = hashParams.get('access_token');
         
-        const supabase = createClient(URL, KEY);
+        // Базовый ключ (если это не редирект)
+        const baseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
+        
+        const supabase = createClient(URL, baseKey);
         let USER_ID = null;
+        let USER_NAME = 'Пользователь';
 
         window.loginWithGoogle = async () => {
             await supabase.auth.signInWithOAuth({
@@ -146,37 +151,47 @@
 
         window.logout = async () => {
             await supabase.auth.signOut();
-            window.location.reload();
+            window.location.href = 'https://250294-tech.github.io/elizaveta/';
         };
 
         async function checkUser() {
-            try {
-                const { data: { user }, error } = await supabase.auth.getUser();
-                if (error) throw error;
+            // Проверяем сессию через стандартный метод сессии
+            const { data: { session } } = await supabase.auth.getSession();
+            const user = session?.user;
+            
+            if (user) {
+                USER_ID = user.id;
+                USER_NAME = user.user_metadata?.full_name || user.email.split('@')[0];
                 
-                if (user) {
-                    USER_ID = user.id;
-                    document.getElementById('loginCard').classList.add('hidden');
-                    document.getElementById('profileCard').classList.remove('hidden');
-                    document.getElementById('monitorCard').classList.remove('hidden');
-                    fetchGroup();
-                } else {
-                    showLogin();
-                }
-            } catch (e) {
-                showLogin();
+                document.getElementById('loginCard').classList.add('hidden');
+                document.getElementById('profileCard').classList.remove('hidden');
+                document.getElementById('monitorCard').classList.remove('hidden');
+                
+                // Проверяем, есть ли этот пользователь в таблице profiles, если нет - создаем автоматическую запись
+                await ensureProfileExists();
+                fetchGroup();
+            } else {
+                document.getElementById('loginCard').classList.remove('hidden');
+                document.getElementById('profileCard').classList.add('hidden');
+                document.getElementById('monitorCard').classList.add('hidden');
             }
         }
 
-        function showLogin() {
-            document.getElementById('loginCard').classList.remove('hidden');
-            document.getElementById('profileCard').classList.add('hidden');
-            document.getElementById('monitorCard').classList.add('hidden');
+        async function ensureProfileExists() {
+            if (!USER_ID) return;
+            const { data } = await supabase.from('profiles').select('id').eq('id', USER_ID).maybeSingle();
+            
+            // Если записи с таким Google ID еще нет в таблице - создаем её автоматически
+            if (!data) {
+                await supabase.from('profiles').insert([
+                    { id: USER_ID, username: USER_NAME, status: 'Только вошел', avatar_url: '#ccc' }
+                ]);
+            }
         }
 
         window.changeStatus = async (text, color) => {
             if (!USER_ID) return;
-            await supabase.from('profiles').update({ status: text, avatar_url: color }).eq('id', USER_ID);
+            await supabase.from('profiles').upsert({ id: USER_ID, status: text, avatar_url: color, username: USER_NAME });
             fetchGroup();
         };
 
@@ -197,7 +212,7 @@
 
             const me = data.find(u => u.id === USER_ID);
             if (me) {
-                document.getElementById('myinfo').innerText = `Вы вошли как: ${me.username || 'Пользователь Google'}`;
+                document.getElementById('myinfo').innerText = `Вы вошли как: ${me.username}`;
             }
         }
 
