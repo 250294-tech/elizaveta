@@ -106,7 +106,6 @@
 <body>
 
     <div class="container">
-        
         <div class="card" id="loginCard">
             <h2>Вход в систему</h2>
             <p class="info-text">Для управления своим статусом авторизуйтесь через ваш Google аккаунт.</p>
@@ -123,42 +122,68 @@
                 <button class="status-btn btn-coffee" onclick="changeStatus('☕ Кофе', '#f59e0b')">☕ Кофе</button>
                 <button class="status-btn btn-game" onclick="changeStatus('🎮 В игре', '#3b82f6')">🎮 В игре</button>
             </div>
-            <button class="btn-logout" onclick="logout()">Выйти из аккаунта</button>
+            <button class="btn-logout" onclick="logout()">Выйти</button>
         </div>
 
         <div class="card hidden" id="monitorCard">
             <h2 style="text-align: left; margin-bottom: 16px;">Монитор группы</h2>
             <div class="group-list" id="grouplist">Загрузка списка...</div>
         </div>
-        
     </div>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
         const URL = 'https://jocrggurfkljvpsgsdem.supabase.co';
-        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
+        const KEY = 'sb_publishable_2yps3NEaSQEVM4JYmi7xvw_F9avZshXwYfAbe7mU7W1ZgO72S68vJofqI80m_7Vb8dKy2D696SgXg9w3';
         
-        const supabase = createClient(URL, KEY);
+        // Создаем клиент с явным указанием автоматического сохранения сессий
+        const supabase = createClient(URL, KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        });
         
         let USER_ID = null;
         let USER_NAME = 'Лиза';
+        const REDIRECT_URL = 'https://250294-tech.github.io/elizaveta/';
 
         window.loginWithGoogle = async () => {
             await supabase.auth.signInWithOAuth({
                 provider: 'google',
-                options: { redirectTo: window.location.origin + window.location.pathname }
+                options: { redirectTo: REDIRECT_URL }
             });
         };
 
         window.logout = async () => {
             await supabase.auth.signOut();
-            window.location.href = window.location.origin + window.location.pathname;
+            window.location.href = REDIRECT_URL;
         };
 
         async function checkUser() {
+            // Слушаем изменение состояния авторизации (когда токен спарсится из URL)
+            supabase.auth.onAuthStateChange(async (event, session) => {
+                if (session?.user) {
+                    USER_ID = session.user.id;
+                    USER_NAME = session.user.user_metadata?.full_name || 'Лиза';
+                    
+                    document.getElementById('loginCard').classList.add('hidden');
+                    document.getElementById('profileCard').classList.remove('hidden');
+                    document.getElementById('monitorCard').classList.remove('hidden');
+                    
+                    await ensureProfileExists();
+                    fetchGroup();
+                } else {
+                    document.getElementById('loginCard').classList.remove('hidden');
+                    document.getElementById('profileCard').classList.add('hidden');
+                    document.getElementById('monitorCard').classList.add('hidden');
+                }
+            });
+
+            // Прямая проверка текущей сессии
             const { data: { session } } = await supabase.auth.getSession();
-            
             if (session?.user) {
                 USER_ID = session.user.id;
                 USER_NAME = session.user.user_metadata?.full_name || 'Лиза';
@@ -169,24 +194,15 @@
                 
                 await ensureProfileExists();
                 fetchGroup();
-            } else {
-                document.getElementById('loginCard').classList.remove('hidden');
-                document.getElementById('profileCard').classList.add('hidden');
-                document.getElementById('monitorCard').classList.add('hidden');
             }
         }
 
         async function ensureProfileExists() {
             if (!USER_ID) return;
+            const { data } = await supabase.from('profiles').select('id').eq('id', USER_ID).maybeSingle();
             
-            // Проверяем, есть ли запись с текущим Google ID
-            const { data: byId } = await supabase.from('profiles').select('*').eq('id', USER_ID).maybeSingle();
-            
-            if (!byId) {
-                // Если записи с новым ID нет, но осталась старая "Лиза", удаляем её, чтобы не плодить дубликаты
+            if (!data) {
                 await supabase.from('profiles').delete().eq('username', 'Лиза');
-                
-                // Пересоздаем запись под твоим реальным авторизованным ID
                 await supabase.from('profiles').insert([
                     { id: USER_ID, username: USER_NAME, status: 'В сети', avatar_url: '#10b981' }
                 ]);
@@ -225,7 +241,7 @@
             }
         }
 
-        // Подписка на живые обновления
+        // Включаем подписку на изменения базы
         supabase.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
             fetchGroup();
         }).subscribe();
