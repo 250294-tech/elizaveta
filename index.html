@@ -6,16 +6,16 @@
     <title>REALTIME MONITOR — Статусы группы</title>
     <style>
         :root {
-            --bg-dark: #0a0e17;
-            --panel-bg: #121824;
-            --card-inner: #1c2333;
-            --neon-green: #00e676;
-            --neon-blue: #29b6f6;
-            --neon-cyan: #26c6da;
-            --neon-orange: #ffa726;
+            --bg-dark: #090d16;
+            --panel-bg: #111827;
+            --card-inner: #1f2937;
+            --neon-green: #10b981;
+            --neon-blue: #3b82f6;
+            --neon-cyan: #06b6d4;
+            --neon-orange: #f59e0b;
             --text-white: #ffffff;
-            --text-gray: #90a4ae;
-            --border-color: #2c374e;
+            --text-gray: #9ca3af;
+            --border-color: #374151;
         }
 
         body {
@@ -25,62 +25,57 @@
             margin: 0;
             padding: 20px;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
         }
 
-        /* Общий контейнер на всю доступную ширину для ПК/планшетов */
-        .app-container {
-            max-width: 800px;
+        /* Мобильный макет в стиле телефона, как у Алмаса */
+        .phone-mockup {
+            max-width: 430px;
             width: 100%;
+            background: var(--panel-bg);
+            border-radius: 32px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
+            box-sizing: border-box;
         }
 
+        /* Заголовок приложения */
         .app-header {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #7986cb;
+            letter-spacing: 1.5px;
+            color: #6366f1;
             font-weight: 800;
-            margin-bottom: -10px;
+            text-align: left;
+            margin-bottom: -8px;
         }
         .app-title {
-            font-size: 2rem;
+            font-size: 1.6rem;
             font-weight: 800;
             margin: 0 0 10px 0;
+            text-align: left;
         }
-        .app-title span { color: #5c6bc0; }
+        .app-title span { color: #6366f1; }
 
-        /* Центрированное стильное окно входа через Google */
-        .login-box {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 40px;
-            text-align: center;
-            max-width: 450px;
-            width: 100%;
-            margin-top: 10vh;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        /* Окно входа внутри телефона */
+        .login-box { 
+            text-align: center; 
+            padding: 30px 10px; 
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
-        .login-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        .info-text { 
-            color: var(--text-gray); 
-            font-size: 0.95rem; 
-            margin-bottom: 30px; 
-            line-height: 1.6; 
-        }
+        .info-text { color: var(--text-gray); font-size: 0.9rem; line-height: 1.5; margin-bottom: 10px; }
         
         .btn-google {
-            background-color: #3b82f6;
+            background-color: #4285F4;
             color: white;
             width: 100%;
             display: flex;
@@ -92,241 +87,191 @@
             border: none;
             border-radius: 14px;
             cursor: pointer;
-            font-weight: 700;
-            transition: transform 0.2s, background-color 0.2s;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
         }
-        .btn-google:hover { 
-            transform: translateY(-2px);
-            background-color: #2563eb;
-        }
+        .btn-google:hover { transform: translateY(-2px); }
 
-        /* Стили главного рабочего экрана */
-        .workspace-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-        }
-
-        /* Главная карточка сессии учебы */
+        /* Карточка главной сессии */
         .session-card {
-            background: var(--panel-bg);
-            border-radius: 24px;
-            padding: 24px;
-            border: 1px solid var(--border-color);
+            background: var(--card-inner);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.03);
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
         
         .user-badge-header {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
+            justify-content: center;
         }
         .my-avatar-placeholder {
-            width: 42px;
-            height: 42px;
-            background: #5c6bc0;
-            border-radius: 12px;
+            width: 32px;
+            height: 32px;
+            background: #6366f1;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
-        .user-full-name { font-size: 1.3rem; font-weight: 700; }
+        .user-full-name { font-size: 1.15rem; font-weight: 700; }
         
         .big-timer {
-            font-size: 3rem; 
-            font-weight: 900; 
-            color: var(--neon-green);
-            margin: 15px 0;
-            text-shadow: 0 0 20px rgba(0, 230, 118, 0.2);
+            font-size: 2.2rem; font-weight: 900; color: #10b981;
+            display: flex; align-items: center; justify-content: center; gap: 10px; margin: 14px 0;
         }
         .sub-status-text {
-            font-size: 0.8rem; 
-            text-transform: uppercase; 
-            color: var(--neon-orange);
-            letter-spacing: 3px; 
-            font-weight: 700; 
-            margin-bottom: 20px;
+            font-size: 0.75rem; text-transform: uppercase; color: var(--neon-orange);
+            letter-spacing: 2px; font-weight: 700; margin-top: -8px; margin-bottom: 16px;
         }
 
-        /* Кнопки управления таймером */
-        .controls-row { display: flex; gap: 12px; justify-content: center; max-width: 400px; margin: 0 auto 24px auto; }
+        /* Кнопки управления */
+        .controls-row { display: flex; gap: 10px; }
         .btn-action {
-            flex: 1; padding: 14px; border: none; border-radius: 14px;
-            font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s;
+            flex: 1; padding: 14px; border: none; border-radius: 12px;
+            font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
         }
-        .btn-action.start { background: var(--neon-green); color: #000; }
-        .btn-action.stop { background: #ef5350; color: white; }
-        .btn-action.neutral { background: #374151; color: var(--text-white); }
-        .btn-action.neutral:hover { background: #d32f2f; }
+        .btn-action.start { background: #10b981; color: white; }
+        .btn-action.stop { background: #ef4444; color: white; }
+        .btn-action.neutral { background: #374151; color: var(--text-gray); }
 
-        /* 4 мини-плашки статистики */
+        /* Сетка мини-статистики */
         .mini-stats-grid {
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px; 
-            margin: 20px 0;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 8px; margin: 16px 0;
         }
         .stat-box {
-            background: var(--card-inner); 
-            padding: 14px 8px; 
-            border-radius: 14px; 
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.02);
+            background: rgba(0,0,0,0.2); padding: 10px 4px; border-radius: 10px; text-align: center;
         }
-        .stat-val { font-size: 1.2rem; font-weight: 800; color: var(--text-white); }
-        .stat-lbl { font-size: 0.7rem; color: var(--text-gray); text-transform: uppercase; margin-top: 4px; opacity: 0.8; }
+        .stat-val { font-size: 1rem; font-weight: 800; color: var(--text-white); }
+        .stat-lbl { font-size: 0.65rem; color: var(--text-gray); text-transform: uppercase; margin-top: 2px; }
 
-        /* 4 быстрых статуса */
-        .status-selectors { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 10px; 
-            margin: 20px 0; 
-        }
-        @media (min-width: 600px) {
-            .status-selectors { grid-template-columns: repeat(4, 1fr); }
-        }
+        /* Переключатели статусов (В сети, Отошел...) */
+        .status-selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
         .selector-btn {
-            background: rgba(255,255,255,0.02); 
-            border: 1px solid var(--border-color);
-            padding: 14px; 
-            border-radius: 14px; 
-            color: var(--text-white);
-            font-size: 0.9rem; 
-            font-weight: 600; 
-            cursor: pointer;
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.2s;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);
+            padding: 12px; border-radius: 12px; color: var(--text-white);
+            font-size: 0.85rem; font-weight: 600; text-align: left; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
         }
-        .selector-btn.active { border-color: #5c6bc0; background: rgba(92, 107, 192, 0.15); }
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .selector-btn.active { border-color: #6366f1; background: rgba(99, 102, 241, 0.1); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
-        /* Счетчики живого онлайна группы */
+        /* Живые счетчики (Учатся / Перерыв) */
         .live-counters {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-            background: rgba(0,0,0,0.2); padding: 16px; border-radius: 16px;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+            background: rgba(0,0,0,0.15); padding: 12px; border-radius: 14px; margin: 8px 0;
         }
         .counter-item { text-align: center; }
-        .counter-num { font-size: 1.4rem; font-weight: 800; }
+        .counter-num { font-size: 1.1rem; font-weight: 800; }
         .counter-num.green { color: var(--neon-green); }
         .counter-num.orange { color: var(--neon-orange); }
         .counter-num.gray { color: var(--text-gray); }
-        .counter-lbl { font-size: 0.75rem; color: var(--text-gray); text-transform: uppercase; margin-top: 4px; }
+        .counter-lbl { font-size: 0.65rem; color: var(--text-gray); text-transform: uppercase; margin-top: 2px; }
 
-        /* Вкладки */
+        /* Вкладки навигации */
         .tabs-row {
-            display: flex; background: rgba(0,0,0,0.2); padding: 6px;
-            border-radius: 16px; border: 1px solid var(--border-color);
+            display: flex; background: rgba(0,0,0,0.2); padding: 4px;
+            border-radius: 12px; border: 1px solid var(--border-color); margin: 8px 0;
         }
         .tab-btn {
             flex: 1; background: transparent; border: none; color: var(--text-gray);
-            padding: 12px 0; font-size: 0.9rem; font-weight: 700; cursor: pointer;
-            border-radius: 10px; transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 0; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+            border-radius: 8px; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
         }
         .tab-btn.active {
             background: var(--card-inner); color: var(--text-white);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.03);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .tab-content { display: flex; flex-direction: column; gap: 12px; min-height: 100px; }
+        /* Контент вкладок */
+        .tab-content { display: flex; flex-direction: column; gap: 10px; text-align: left; }
 
-        /* Строки списков */
+        /* Элемент списка (Студент) */
         .user-row {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 16px; background: var(--panel-bg);
-            border-radius: 18px; border: 1px solid var(--border-color);
+            padding: 12px; background: rgba(255,255,255,0.02);
+            border-radius: 14px; border: 1px solid rgba(255,255,255,0.03);
         }
-        .row-left { display: flex; align-items: center; gap: 14px; }
-        .row-avatar {
-            width: 40px; height: 40px; border-radius: 10px; background: #2c374e;
+        .row-left { display: flex; align-items: center; gap: 12px; }
+        .avatar-circle {
+            width: 36px; height: 36px; border-radius: 10px; background: #374151;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 1rem;
+            font-weight: 700; font-size: 0.9rem;
         }
-        .row-info { display: flex; flex-direction: column; gap: 4px; }
-        .row-name { font-weight: 700; font-size: 1rem; }
-        .row-status-text { font-size: 0.8rem; color: var(--text-gray); }
-        .row-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-        .row-meta-top { font-size: 0.85rem; color: var(--text-gray); }
-        .row-meta-time { font-size: 0.85rem; color: var(--neon-blue); font-weight: 700; }
+        .row-info { display: flex; flex-direction: column; gap: 2px; }
+        .row-name { font-weight: 600; font-size: 0.9rem; }
+        .row-status-text { font-size: 0.75rem; color: var(--text-gray); }
+        .row-right { display: flex; flex-direction: column; align-items: flex-end; }
+        .row-meta-top { font-size: 0.75rem; color: var(--text-gray); }
+        .row-meta-time { font-size: 0.75rem; color: var(--neon-blue); font-weight: 700; }
 
-        /* Сетка значков на вкладке достижений */
-        .achievements-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-        @media (min-width: 500px) { .achievements-grid { grid-template-columns: 1fr 1fr; } }
-        
+        /* Достижения (Сетка значков) */
+        .achievements-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .achievement-card {
-            background: var(--panel-bg); border: 1px solid var(--border-color);
-            border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 8px;
-            opacity: 0.25; filter: grayscale(1); transition: all 0.3s;
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 6px;
+            position: relative; opacity: 0.25; filter: grayscale(1); transition: all 0.3s;
         }
         .achievement-card.unlocked {
-            opacity: 1; filter: grayscale(0); border-color: rgba(92, 107, 192, 0.4);
-            background: linear-gradient(145deg, var(--panel-bg), rgba(92, 107, 192, 0.06));
+            opacity: 1; filter: grayscale(0); border-color: rgba(99, 102, 241, 0.3);
+            background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(99, 102, 241, 0.05));
         }
-        .ach-icon { font-size: 1.8rem; }
-        .ach-title { font-weight: 700; font-size: 0.95rem; }
-        .ach-desc { font-size: 0.75rem; color: var(--text-gray); line-height: 1.4; }
+        .ach-icon { font-size: 1.5rem; }
+        .ach-title { font-weight: 700; font-size: 0.85rem; }
+        .ach-desc { font-size: 0.7rem; color: var(--text-gray); line-height: 1.3; }
         .ach-tag {
-            align-self: flex-start; font-size: 0.65rem; font-weight: 800;
-            padding: 3px 8px; border-radius: 6px; text-transform: uppercase;
-            background: #2c374e; color: var(--text-gray);
+            align-self: flex-start; font-size: 0.6rem; font-weight: 800;
+            padding: 2px 6px; border-radius: 6px; text-transform: uppercase;
+            background: #374151; color: var(--text-gray);
         }
-        .achievement-card.unlocked .ach-tag { background: rgba(0, 230, 118, 0.15); color: var(--neon-green); }
+        .achievement-card.unlocked .ach-tag { background: rgba(16, 185, 129, 0.15); color: var(--neon-green); }
 
-        /* Раздел глобального чата */
-        .chat-section {
-            background: var(--panel-bg); border: 1px solid var(--border-color);
-            border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 12px;
-        }
-        .chat-title-text { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        /* Общий чат */
+        .chat-area { display: flex; flex-direction: column; gap: 10px; }
         .chat-messages {
-            height: 160px; overflow-y: auto; background: rgba(0,0,0,0.2);
-            border-radius: 14px; padding: 14px; font-size: 0.9rem;
-            display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(255,255,255,0.01);
+            height: 110px; overflow-y: auto; background: rgba(0,0,0,0.2);
+            border-radius: 12px; padding: 10px; font-size: 0.85rem;
+            display: flex; flex-direction: column; gap: 6px;
         }
-        .chat-msg-row { line-height: 1.4; }
-        .chat-input-container { display: flex; gap: 10px; }
+        .chat-input-container { display: flex; gap: 8px; }
         .input-chat {
             flex: 1; background: var(--card-inner); border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 14px; color: white; outline: none; font-size: 0.9rem;
+            border-radius: 10px; padding: 10px; color: white; outline: none; font-size: 0.85rem;
         }
-        .btn-send-chat { background: var(--neon-green); border: none; padding: 0 20px; border-radius: 12px; color: #000; font-weight:700; cursor: pointer; }
+        .btn-send-chat { background: var(--neon-green); border: none; padding: 0 14px; border-radius: 10px; color: #000; font-weight: 700; cursor: pointer; }
 
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="phone-mockup">
         
         <div class="login-box" id="loginBlock">
             <div class="app-header">REALTIME MONITOR</div>
-            <h2 class="login-title">Вход в систему</h2>
-            <p class="info-text">Для управления своим статусом, просмотра живого рейтинга группы и разблокировки личных достижений авторизуйтесь через ваш Google аккаунт.</p>
+            <div class="app-title">Вход в <span>систему</span></div>
+            <p class="info-text">Авторизуйтесь через Google для синхронизации вашего статуса, времени обучения и достижений.</p>
             <button class="btn-google" onclick="loginWithGoogle()">
                 🌐 Войти через Google
             </button>
         </div>
 
-        <div class="hidden workspace-grid" id="mainAppBlock">
-            
+        <div class="hidden" id="mainAppBlock" style="display: flex; flex-direction: column; gap: 16px;">
             <div class="app-header">REALTIME MONITOR</div>
             <div class="app-title">Статусы <span>группы</span></div>
 
             <div class="session-card">
                 <div class="user-badge-header">
                     <div class="my-avatar-placeholder" id="myAvatarLetter">Е</div>
-                    <div class="user-full-name" id="myProfileName">Синхронизация профиля...</div>
+                    <div class="user-full-name" id="myProfileName">Загрузка...</div>
                 </div>
                 
                 <div class="big-timer" id="sessionTimerText">0с</div>
@@ -334,7 +279,7 @@
 
                 <div class="controls-row">
                     <button class="btn-action start hidden" id="resumeBtn" onclick="setStatus('В сети')">Продолжить</button>
-                    <button class="btn-action stop" id="stopBtn" onclick="pauseSession()">Завершить сессию</button>
+                    <button class="btn-action stop" id="stopBtn" onclick="pauseSession()">Завершить</button>
                     <button class="btn-action neutral" onclick="logoutApp()">Выход</button>
                 </div>
 
@@ -365,10 +310,10 @@
                         <span class="dot" style="background: var(--neon-orange)"></span> Отошёл
                     </button>
                     <button class="selector-btn" id="statusBusy" onclick="setStatus('Занят')">
-                        <span class="dot" style="background: #ef5350"></span> Занят
+                        <span class="dot" style="background: #ef4444"></span> Занят
                     </button>
                     <button class="selector-btn" id="statusDND" onclick="setStatus('Не беспокоить')">
-                        <span class="dot" style="background: #78909c"></span> Не беспокоить
+                        <span class="dot" style="background: #9ca3af"></span> Не бесп.
                     </button>
                 </div>
             </div>
@@ -396,13 +341,14 @@
 
             <div class="tab-content" id="tabContentContainer"></div>
 
-            <div class="chat-section">
-                <div class="chat-title-text">💬 Общий чат</div>
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 8px 0;">
+
+            <div class="chat-area">
                 <div class="chat-messages" id="chatWindow">
-                    <div class="chat-msg-row"><span style="color: var(--neon-cyan)">Система:</span> Добро пожаловать! Отправьте 3 сообщения для разблокировки ачивки.</div>
+                    <div><span style="color: var(--neon-cyan)">Система:</span> Чат готов. Напишите 3 сообщения для значка.</div>
                 </div>
                 <div class="chat-input-container">
-                    <input type="text" class="input-chat" id="chatInp" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                    <input type="text" class="input-chat" id="chatInp" placeholder="Сообщение..." onkeydown="if(event.key==='Enter') sendChatMessage()">
                     <button class="btn-send-chat" onclick="sendChatMessage()">➤</button>
                 </div>
             </div>
@@ -453,7 +399,7 @@
             window.location.href = REDIRECT_URL;
         };
 
-        // Ловим возвращение сессии от Google OAuth
+        // Отслеживаем успешный возврат от Google OAuth
         supabase.auth.onAuthStateChange(async (event, session) => {
             if (session?.user) {
                 if (window.location.hash.includes('access_token')) {
@@ -606,7 +552,7 @@
                 container.innerHTML = list.map(u => `
                     <div class="user-row">
                         <div class="row-left">
-                            <div class="row-avatar" style="color: ${u.status === 'В сети' ? 'var(--neon-green)' : 'var(--text-gray)'}">
+                            <div class="avatar-circle" style="color: ${u.status === 'В сети' ? 'var(--neon-green)' : 'var(--text-gray)'}">
                                 ${u.username ? u.username[0].toUpperCase() : 'U'}
                             </div>
                             <div class="row-info">
@@ -625,16 +571,16 @@
             else if (currentTab === 'rank') {
                 const list = usersList.sort((a, b) => parseInt(b.avatar_url || '0') - parseInt(a.avatar_url || '0'));
                 container.innerHTML = list.map((u, i) => `
-                    <div class="user-row" style="${u.id === USER_ID ? 'border-color: #5c6bc0;' : ''}">
+                    <div class="user-row" style="${u.id === USER_ID ? 'border-color: #6366f1;' : ''}">
                         <div class="row-left">
                             <span style="font-weight:800; width:24px; color: var(--neon-cyan)">#${i+1}</span>
                             <div class="row-info">
                                 <span class="row-name">${u.username || 'Аноним'}</span>
-                                <span class="row-status-text">${u.status_emoji ? '🏅 Достижений: ' + u.status_emoji.split(',').length : 'Нет достижений'}</span>
+                                <span class="row-status-text">${u.status_emoji ? '🏅 Ачивок: ' + u.status_emoji.split(',').length : 'Нет достижений'}</span>
                             </div>
                         </div>
                         <div class="row-right">
-                            <span class="row-meta-time" style="font-size:0.95rem; color: var(--neon-green)">${u.avatar_url || 0} с учёбы</span>
+                            <span class="row-meta-time" style="font-size:0.9rem; color: var(--neon-green)">${u.avatar_url || 0} с учёбы</span>
                         </div>
                     </div>
                 `).join('');
@@ -690,7 +636,7 @@
             document.getElementById('statMsgs').innerText = msgCounter;
 
             const win = document.getElementById('chatWindow');
-            win.innerHTML += `<div class="chat-msg-row"><span style="color: var(--neon-green)">${USER_NAME}:</span> ${txt}</div>`;
+            win.innerHTML += `<div><span style="color: var(--neon-green)">${USER_NAME}:</span> ${txt}</div>`;
             inp.value = '';
             win.scrollTop = win.scrollHeight;
 
@@ -704,7 +650,7 @@
             loadGroupData();
         };
 
-        // Мгновенный перехват сессии при обычной перезагрузке страницы
+        // Подхват сессии
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
             setupSession(session.user);
