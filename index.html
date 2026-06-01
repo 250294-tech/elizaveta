@@ -129,20 +129,17 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        // ТВОЙ НАСТОЯЩИЙ АДРЕС ПРОЕКТА!
+        // Твои точные данные из скриншотов
         const URL = 'https://jocrggurfkljvpsgsdem.supabase.co';
-        
-        // Сюда нам нужен твой новый КЛЮЧ anon public
-        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
+        const KEY = 'sb_publishable_2yps3NEaSQEVM4JYmi7xvw_F9avZ_d1tM1S-Xv_3Z9S6IsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvY3JnZ3VyZmtsanZwc2dzZGVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODU3MjcsImV4cCI6MjA1NTk2MTcyN30.Z0ZzVl9EOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGlfXzhZOGk';
         
         const supabase = createClient(URL, KEY);
-
         let USER_ID = null;
 
         window.loginWithGoogle = async () => {
             await supabase.auth.signInWithOAuth({
                 provider: 'google',
-                options: { redirectTo: window.location.href }
+                options: { redirectTo: 'https://250294-tech.github.io/elizaveta/' }
             });
         };
 
